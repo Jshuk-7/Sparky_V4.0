@@ -1,0 +1,6 @@
+*.user
+.vs
+/bin
+vendor/GLFW/docs
+Sparky/libs
+Sparky/Assets/Audio

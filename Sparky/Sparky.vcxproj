@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{2c120cc2-be61-41b7-8449-fb799db1d680}</ProjectGuid>
+    <RootNamespace>Sparky</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)bin\$(Configuration)-$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)bin\int\$(Configuration)-$(Platform)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)bin\$(Configuration)-$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)bin\int\$(Configuration)-$(Platform)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>SP_DEBUG;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <AdditionalIncludeDirectories>C:\dev\Projects\Sparky\vendor\GLAD\include;C:\dev\Projects\Sparky\vendor\GLFW\include;C:\dev\Projects\Sparky\vendor\ImGui;C:\dev\Projects\Sparky\vendor\Stb_Image;C:\dev\Projects\Sparky\vendor\entt\include;C:\dev\Projects\Sparky\Sparky\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <FloatingPointModel>Fast</FloatingPointModel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\dev\Projects\Sparky\vendor\GLFW\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;Winmm.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>SP_RELEASE;_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <AdditionalIncludeDirectories>C:\dev\Projects\Sparky\vendor\GLAD\include;C:\dev\Projects\Sparky\vendor\GLFW\include;C:\dev\Projects\Sparky\vendor\ImGui;C:\dev\Projects\Sparky\vendor\Stb_Image;C:\dev\Projects\Sparky\vendor\entt\include;C:\dev\Projects\Sparky\Sparky\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <FloatingPointModel>Fast</FloatingPointModel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\dev\Projects\Sparky\vendor\GLFW\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;Winmm.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Core\Scene\Scene.cpp" />
+    <ClCompile Include="src\Graphics\Objects\FrameBuffer\FrameBuffer.cpp" />
+    <ClCompile Include="libs\GLAD\glad.c" />
+    <ClCompile Include="libs\ImGui\imgui.cpp" />
+    <ClCompile Include="libs\ImGui\imgui_demo.cpp" />
+    <ClCompile Include="libs\ImGui\imgui_draw.cpp" />
+    <ClCompile Include="libs\ImGui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="libs\ImGui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="libs\ImGui\imgui_tables.cpp" />
+    <ClCompile Include="libs\ImGui\imgui_widgets.cpp" />
+    <ClCompile Include="libs\Stb_Image\stb_image.cpp" />
+    <ClCompile Include="src\Graphics\Objects\VertexBuffer\VertexBuffer.cpp" />
+    <ClCompile Include="src\Graphics\Objects\IndexBuffer\IndexBuffer.cpp" />
+    <ClCompile Include="src\Graphics\Objects\VertexArray\VertexArray.cpp" />
+    <ClCompile Include="src\Graphics\Renderer\Renderer.cpp" />
+    <ClCompile Include="src\Graphics\Shader\Shader.cpp" />
+    <ClCompile Include="src\Graphics\Texture\Texture.cpp" />
+    <ClCompile Include="src\Math\SparkyMatrices.cpp" />
+    <ClCompile Include="src\Math\SparkyVectors.cpp" />
+    <ClCompile Include="src\Utilities\Log\Log.cpp" />
+    <ClCompile Include="src\Utilities\SparkyException\SparkyException.cpp" />
+    <ClCompile Include="src\Core\Application\Application.cpp" />
+    <ClCompile Include="src\WinMain.cpp" />
+    <ClCompile Include="src\Core\Window\Window.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Core\Scene\Components.h" />
+    <ClInclude Include="src\Core\Scene\Scene.h" />
+    <ClInclude Include="src\Core\SparkySTL\Array.h" />
+    <ClInclude Include="src\Core\SparkySTL\SparkySTL.h" />
+    <ClInclude Include="src\Core\SparkySTL\Vector.h" />
+    <ClInclude Include="src\Core\Timestep.h" />
+    <ClInclude Include="src\Graphics\Objects\FrameBuffer\FrameBuffer.h" />
+    <ClInclude Include="libs\ImGui\imconfig.h" />
+    <ClInclude Include="libs\ImGui\imgui.h" />
+    <ClInclude Include="libs\ImGui\imgui_impl_glfw.h" />
+    <ClInclude Include="libs\ImGui\imgui_impl_opengl3.h" />
+    <ClInclude Include="libs\ImGui\imgui_internal.h" />
+    <ClInclude Include="libs\ImGui\imstb_rectpack.h" />
+    <ClInclude Include="libs\ImGui\imstb_textedit.h" />
+    <ClInclude Include="libs\ImGui\imstb_truetype.h" />
+    <ClInclude Include="libs\Stb_Image\stb_image.h" />
+    <ClInclude Include="src\Graphics\Objects\IndexBuffer\IndexBuffer.h" />
+    <ClInclude Include="src\Graphics\Objects\VertexArray\VertexArray.h" />
+    <ClInclude Include="src\Graphics\Objects\VertexBuffer\VertexBuffer.h" />
+    <ClInclude Include="src\Graphics\Renderer\Renderer.h" />
+    <ClInclude Include="src\Graphics\Shader\Shader.h" />
+    <ClInclude Include="src\Sparky.h" />
+    <ClInclude Include="src\Graphics\Texture\Texture.h" />
+    <ClInclude Include="src\Math\SparkyMath.h" />
+    <ClInclude Include="src\Math\SparkyMatrices.h" />
+    <ClInclude Include="src\Math\SparkyVectors.h" />
+    <ClInclude Include="src\Utilities\Log\Log.h" />
+    <ClInclude Include="src\Utilities\SparkyException\SparkyException.h" />
+    <ClInclude Include="src\Config\Defines.h" />
+    <ClInclude Include="src\Core\Application\Application.h" />
+    <ClInclude Include="src\Core\Window\Window.h" />
+    <ClInclude Include="src\Utilities\Utilities.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="imgui.ini" />
+    <None Include="Assets\Shaders\default.frag.glsl" />
+    <None Include="Assets\Shaders\default.vert.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="Assets\Fonts\Arial.ttf" />
+    <Font Include="Assets\Fonts\SegoeUI.ttf" />
+    <Font Include="Assets\Fonts\SegoeUIHistoric.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Assets\Textures\AwesomeFace.png" />
+    <Image Include="Assets\Textures\Container.jpg" />
+    <Image Include="Assets\Textures\Crate.png" />
+    <Image Include="Assets\Textures\DarkSky.jpg" />
+    <Image Include="Textures\Gray.png" />
+    <Image Include="Assets\Textures\OpenGL.png" />
+    <Image Include="Assets\Textures\Shawn.png" />
+    <Image Include="Assets\Textures\Sky.png" />
+    <Image Include="Assets\Textures\Skybox\back.jpg" />
+    <Image Include="Assets\Textures\Skybox\bottom.jpg" />
+    <Image Include="Assets\Textures\Skybox\front.jpg" />
+    <Image Include="Assets\Textures\Skybox\left.jpg" />
+    <Image Include="Assets\Textures\Skybox\right.jpg" />
+    <Image Include="Assets\Textures\Skybox\top.jpg" />
+    <Image Include="Textures\sybox\back.jpg" />
+    <Image Include="Textures\sybox\bottom.jpg" />
+    <Image Include="Textures\sybox\front.jpg" />
+    <Image Include="Textures\sybox\left.jpg" />
+    <Image Include="Textures\sybox\right.jpg" />
+    <Image Include="Textures\sybox\top.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="Assets\Audio\HowItWas.wav" />
+    <Media Include="Assets\Audio\Music.wav" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
