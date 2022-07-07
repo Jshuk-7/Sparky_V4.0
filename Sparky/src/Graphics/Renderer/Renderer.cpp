@@ -18,7 +18,7 @@ void Sparky::Renderer::Update() const noexcept
 	SwapFrameBuffers();
 }
 
-void Sparky::Renderer::SetRenderClearColor(const vec3& color) const noexcept
+void Sparky::Renderer::SetClearColor(const vec3& color) const noexcept
 {
 	glClearColor(color.r, color.g, color.b, 1.0f);
 }
@@ -28,12 +28,17 @@ void Sparky::Renderer::RenderClear() const noexcept
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void Sparky::Renderer::Render(GLenum mode, GLsizei vertexCount, GLenum type) noexcept
+void Sparky::Renderer::Render(PrimitiveType primitive, u32 totalVertices, IndexBufferDataType iboDataType) noexcept
 {
-	glDrawElements(mode, vertexCount, type, SP_NULL_HANDLE);
+	glDrawElements(
+		static_cast<GLenum>(primitive),
+		totalVertices,
+		static_cast<GLenum>(iboDataType),
+		SP_NULL_HANDLE
+	);
 }
 
-void Sparky::Renderer::SubmitRendererStats(const RendererStatistics& stats) noexcept
+void Sparky::Renderer::SubmitStats(const RendererStatistics& stats) noexcept
 {
 	m_RendererStats = stats;
 }

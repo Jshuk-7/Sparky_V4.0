@@ -87,6 +87,9 @@
     <ClCompile Include="src\Core\Scene\Scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\ProjectBrowser\ProjectBrowser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Config\Defines.h">
@@ -183,6 +186,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\SparkySTL\Vector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\ProjectBrowser\ProjectBrowser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

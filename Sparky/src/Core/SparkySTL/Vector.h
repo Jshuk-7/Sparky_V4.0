@@ -1,5 +1,7 @@
 #pragma once
 
+#include <utility>
+
 #include "Config/Defines.h"
 
 namespace Sparky::stl {
@@ -84,7 +86,7 @@ namespace Sparky::stl {
 			ReAlloc(2);
 		}
 
-		~Vector() noexcept
+		void Destroy() noexcept
 		{
 			Clear();
 			::operator delete(m_Data, m_Capacity * sizeof(T));

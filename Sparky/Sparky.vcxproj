@@ -96,6 +96,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\ProjectBrowser\ProjectBrowser.cpp" />
     <ClCompile Include="src\Core\Scene\Scene.cpp" />
     <ClCompile Include="src\Graphics\Objects\FrameBuffer\FrameBuffer.cpp" />
     <ClCompile Include="libs\GLAD\glad.c" />
@@ -122,6 +123,7 @@
     <ClCompile Include="src\Core\Window\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core\ProjectBrowser\ProjectBrowser.h" />
     <ClInclude Include="src\Core\Scene\Components.h" />
     <ClInclude Include="src\Core\Scene\Scene.h" />
     <ClInclude Include="src\Core\SparkySTL\Array.h" />

@@ -1,16 +1,18 @@
 #include "IndexBuffer.h"
 
-Sparky::IndexBuffer::IndexBuffer(const IndexBufferCreateInfo& createInfo) noexcept
-	:
-	m_BufferId(SP_NULL),
-	m_IndexCount(createInfo.indexCount),
-	m_DataType(createInfo.dataType)
+Sparky::IndexBuffer::IndexBuffer(const IndexBufferCreateInfo* createInfo) noexcept
+	: m_BufferId(SP_NULL), m_CreateInfo(*createInfo)
 {
 	glCreateBuffers(1, &m_BufferId);
-	glNamedBufferStorage(m_BufferId, m_IndexCount * sizeof(u8), createInfo.pData, GL_DYNAMIC_STORAGE_BIT);
+}
+
+Sparky::IndexBuffer* Sparky::IndexBuffer::Create(const IndexBufferCreateInfo* createInfo) noexcept
+{
+	return new IndexBuffer(createInfo);
 }
 
 void Sparky::IndexBuffer::Destroy() noexcept
 {
-	glDeleteBuffers(1, &m_BufferId);
+	if (m_BufferId)
+		glDeleteBuffers(1, &m_BufferId);
 }

@@ -4,47 +4,43 @@
 #include <GLFW/glfw3.h>
 
 #include "Config/Defines.h"
+#include "Core/SparkySTL/SparkySTL.h"
 
 namespace Sparky {
 	enum class IndexBufferDataType {
 		UByte   = GL_UNSIGNED_BYTE,
 		UShort  = GL_UNSIGNED_SHORT,
 		UInt    = GL_UNSIGNED_INT,
-		Default = UByte
 	};
 
-	struct IndexBufferCreateInfo
-	{
-		IndexBufferDataType dataType;
-		u8* pData;
-		u32 indexCount;
+	enum class IndexBufferStorageType {
+		Dynamic = GL_DYNAMIC_STORAGE_BIT,
+		Static
+	};
 
-		IndexBufferCreateInfo(
-			IndexBufferDataType dataType,
-			u8* pData,
-			u32 indexCount
-		) :
-			dataType(dataType),
-			pData(pData),
-			indexCount(indexCount)
-		{ }
+	struct IndexBufferCreateInfo {
+		IndexBufferDataType dataType;
+		IndexBufferStorageType storageType;
+		u32 indexCount;
+		stl::Array<u8, 6> indices;
 	};
 
 	class IndexBuffer
 	{
 	public:
-		inline IndexBuffer() noexcept : m_BufferId(SP_NULL), m_IndexCount(SP_NULL), m_DataType(IndexBufferDataType::Default) { }
-		IndexBuffer(const IndexBufferCreateInfo& createInfo) noexcept;
+		IndexBuffer(const IndexBufferCreateInfo* createInfo) noexcept;
+		static IndexBuffer* Create(const IndexBufferCreateInfo* createInfo) noexcept;
 		void Destroy() noexcept;
 
 		inline const u32 GetId() const noexcept { return m_BufferId; }
-		inline const GLenum& DataType() const noexcept{ return static_cast<GLenum>(m_DataType); }
-		inline u32 GetIndexCount() const noexcept { return m_IndexCount; }
+		inline auto DataType() const noexcept{ return m_CreateInfo.dataType; }
+		inline auto GetStorageType() const noexcept { return m_CreateInfo.storageType; }
+		inline u32 GetIndexCount() const noexcept { return m_CreateInfo.indexCount; }
+		inline auto GetIndices() const noexcept { return m_CreateInfo.indices; }
 
 	private:
+		IndexBufferCreateInfo m_CreateInfo;
 		u32 m_BufferId;
-		u32 m_IndexCount;
-		IndexBufferDataType m_DataType;
 
 	};
 }

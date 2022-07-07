@@ -2,7 +2,6 @@
 
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
-#include <imgui_internal.h>
 
 #include "Sparky.h"
 
@@ -138,7 +137,7 @@ Sparky::b8 Sparky::Window::Init() const
 	return QueryExtensionSupport();
 }
 
-void Sparky::Window::CreateEditorGUIFrame(FrameBuffer& framebuffer, const RendererStatistics& stats, u32 frameCount) noexcept
+void Sparky::Window::CreateEditorGUIFrame(FrameBuffer& framebuffer, u32 frameCount, const RendererStatistics& stats) noexcept
 {
 	m_VSYNC ? glfwSwapInterval(1) : glfwSwapInterval(0);
 	m_DebugMode ? glPolygonMode(GL_FRONT_AND_BACK, GL_LINE) : glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -167,6 +166,7 @@ void Sparky::Window::CreateEditorGUIFrame(FrameBuffer& framebuffer, const Render
 	if (s_ShowScenePanel)              RenderScenePanel(framebuffer);
 	if (s_ShowStatsPanel)              RenderStatsPanel(stats, frameCount);
 
+	EndFrame();
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(GetDrawData());
 
@@ -183,12 +183,21 @@ void Sparky::Window::CreateEditorGUIFrame(FrameBuffer& framebuffer, const Render
 	}
 }
 
-void TextCentered(const std::string& text) {
+void TextCentered(const std::string& text)
+{
 	auto windowWidth = ImGui::GetWindowSize().x;
 	auto textWidth = ImGui::CalcTextSize(text.c_str()).x;
 
 	ImGui::SetCursorPosX((windowWidth - textWidth) * 0.5f);
 	ImGui::Text(text.c_str());
+}
+
+void Sparky::Window::ToggleFullScreen() const noexcept
+{
+	static b8 fullscreen{ m_Fullscreen };
+	fullscreen = !fullscreen;
+
+	fullscreen ? glfwMaximizeWindow(m_Window) : glfwRestoreWindow(m_Window);
 }
 
 void Sparky::Window::ToggleFullScreenSceneView() noexcept
@@ -229,9 +238,11 @@ void Sparky::Window::ProcessInput(mat4& model, f32 speed, Shader& shader) noexce
 	if (KeyDown(GLFW_KEY_F4))     ImGui::StyleColorsDark();
 	if (KeyDown(GLFW_KEY_F5))     { }
 	if (KeyDown(GLFW_KEY_F6))     shader.ReCompile();
-	if (KeyDown(GLFW_KEY_F11))    ToggleFullScreenSceneView();
+	if (KeyDown(GLFW_KEY_F11))    ToggleFullScreen();
 
-	if (KeyDown(GLFW_KEY_SPACE) && KeyDown(GLFW_KEY_LEFT_SHIFT))
+	if (KeyDown(GLFW_KEY_F12) && KeyDown(GLFW_KEY_LEFT_SHIFT))
+		ToggleFullScreenSceneView();
+	if (KeyDown(GLFW_KEY_SPACE) && KeyDown(GLFW_KEY_LEFT_CONTROL))
 		s_ShowContentBrowserPanel = !s_ShowContentBrowserPanel;
 
 	if (m_ViewportFocused)
@@ -417,7 +428,7 @@ void Sparky::Window::RenderSettingsPanel() noexcept
 {
 	using namespace ImGui;
 
-	SetNextWindowSizeConstraints({600, 400}, {800, 600});
+	SetNextWindowSizeConstraints({ 600, 400 }, { 800, 600 });
 	if (Begin("Settings", &s_ShowSettingsPanel, ImGuiWindowFlags_NoCollapse))
 	{
 		for (u32 i = 0; i < 2; i++) Spacing();
@@ -551,9 +562,7 @@ void Sparky::Window::RenderContentBrowserPanel() const noexcept
 		if (currentDirectory != std::filesystem::path(ASSET_PATH))
 		{
 			if (Button("<--"))
-			{
 				currentDirectory = currentDirectory.parent_path();
-			}
 		}
 
 		for (auto& directoryEntry : std::filesystem::directory_iterator(currentDirectory))
@@ -565,9 +574,7 @@ void Sparky::Window::RenderContentBrowserPanel() const noexcept
 			if (directoryEntry.is_directory())
 			{
 				if (Button(filenameString.c_str()))
-				{
 					currentDirectory /= path.filename();
-				}
 			}
 			else
 			{
@@ -603,7 +610,7 @@ void Sparky::Window::RenderScenePanel(FrameBuffer& framebuffer) noexcept
 			{
 				if (MenuItem("Stats")) s_ShowStatsPanel = !s_ShowStatsPanel;
 
-				static b8 fullscreen{};
+				static b8 fullscreen{ m_Fullscreen };
 				const i8* text = fullscreen ? "Minimize Scene" : "Maximize Scene";
 				if (MenuItem(text))
 				{

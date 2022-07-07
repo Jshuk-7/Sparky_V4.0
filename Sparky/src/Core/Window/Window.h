@@ -16,8 +16,8 @@ namespace Sparky {
 
 	struct WindowCreateInfo {
 		const i8* pApplicationName;
-		b8 fullscreen;
 		Version glContextVersion;
+		b8 fullscreen;
 		b8 coreProfile;
 		b8 listGPUExtensions;
 		b8 debugMode;
@@ -31,7 +31,7 @@ namespace Sparky {
 		static Window* CreateInstance(const WindowCreateInfo* createInfo);
 		b8 Init() const;
 
-		void CreateEditorGUIFrame(FrameBuffer& framebuffer, const RendererStatistics& stats, u32 frameCount) noexcept;
+		void CreateEditorGUIFrame(FrameBuffer& framebuffer, u32 frameCount, const RendererStatistics& stats) noexcept;
 
 		void ProcessInput(mat4& model, f32 speed, Shader& shader) noexcept;
 		b8 Closed() const noexcept;
@@ -61,6 +61,7 @@ namespace Sparky {
 
 		b8 QueryExtensionSupport() const;
 
+		void ToggleFullScreen() const noexcept;
 		void ToggleFullScreenSceneView() noexcept;
 
 		void RenderMainMenuBar() const noexcept;

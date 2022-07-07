@@ -2,21 +2,19 @@
 
 #include "Sparky.h"
 
-const Sparky::vec2 WINDOWED_WINDOW_SIZE{ 1280, 720 };
-
 Sparky::Application::Application()
 {
-	/*PlaySound(L"Assets/Audio/HowItWas.wav", SP_NULL, SND_ASYNC);*/
+	PlaySound(L"Assets/Audio/Music", SP_NULL, SND_ASYNC);
 
 	WindowCreateInfo windowInfo{};
 	windowInfo.pApplicationName = "Sparky Editor";
-	windowInfo.fullscreen = SP_FALSE;
 	windowInfo.glContextVersion = Version(4, 6, 0);
+	windowInfo.fullscreen = SP_FALSE;
 	windowInfo.coreProfile = SP_TRUE;
 	windowInfo.listGPUExtensions = SP_FALSE;
 	windowInfo.debugMode = SP_TRUE;
 	windowInfo.VSYNC = SP_TRUE;
-	windowInfo.windowSize = windowInfo.fullscreen ? Window::MAX_WINDOW_SIZE : WINDOWED_WINDOW_SIZE;
+	windowInfo.windowSize = windowInfo.fullscreen ? Window::MAX_WINDOW_SIZE : vec2(1280, 720);
 
 	m_Window = Window::CreateInstance(&windowInfo);
 
@@ -94,39 +92,38 @@ void Sparky::Application::Run() const noexcept
 	fbInfo.size = Window::MAX_WINDOW_SIZE;
 
 	FrameBuffer framebuffer(&fbInfo);
+
+	VertexBufferCreateInfo vbInfo{};
+	vbInfo.dataType = VertexBufferDataType::Float;
+	vbInfo.storageType = VertexBufferStorageType::Dynamic;
+	vbInfo.stride = static_cast<u32>(sizeof(Vertex));
+	vbInfo.offset = SP_NULL;
+	vbInfo.vertexCount = 6;
+	vbInfo.vertices = vertices;
+
+	IndexBufferCreateInfo ibInfo{};
+	ibInfo.dataType = IndexBufferDataType::UByte;
+	ibInfo.storageType = IndexBufferStorageType::Dynamic;
+	ibInfo.indexCount = 6;
+	ibInfo.indices = indices;
+
+	VertexArray va;
+	va.LinkVBO(VertexBuffer::Create(&vbInfo));
+
+	va.PushAttrib(0, 3, SP_FALSE, SP_NULL);
+	va.PushAttrib(1, 3, SP_FALSE, sizeof(vec3));
+	va.PushAttrib(2, 2, SP_FALSE, sizeof(vec3) * 2);
+
+	va.LinkIBO(IndexBuffer::Create(&ibInfo));
 	
-	u32 va, vb, ib;
-
-	glCreateVertexArrays(1, &va);
-	glCreateBuffers(1, &vb);
-	glCreateBuffers(1, &ib);
-
-	glVertexArrayVertexBuffer(va, 0, vb, SP_NULL, sizeof(Vertex));
-	glNamedBufferStorage(vb, vertices.Bytes(), vertices.Data(), GL_DYNAMIC_STORAGE_BIT);
-
-	glEnableVertexArrayAttrib(va, 0);
-	glVertexArrayAttribFormat(va, 0, 3, GL_FLOAT, SP_FALSE, SP_NULL);
-	glVertexArrayAttribBinding(va, 0, 0);
-
-	glEnableVertexArrayAttrib(va, 1);
-	glVertexArrayAttribFormat(va, 1, 3, GL_FLOAT, SP_FALSE, sizeof(vec3));
-	glVertexArrayAttribBinding(va, 1, 0);
-
-	glEnableVertexArrayAttrib(va, 2);
-	glVertexArrayAttribFormat(va, 2, 2, GL_FLOAT, SP_FALSE, sizeof(vec3) * 2);
-	glVertexArrayAttribBinding(va, 2, 0);
-
-	glVertexArrayElementBuffer(va, ib);
-	glNamedBufferStorage(ib, indices.Bytes(), indices.Data(), GL_DYNAMIC_STORAGE_BIT);
-
 	RendererStatistics stats{};
 	stats.drawCalls = 1;
-	stats.triangleCount = 2;
-	stats.vertices = 6;
+	stats.triangleCount = va.GetLinkedVBOs()[0]->GetVertexCount() / SP_VERTICES_PER_TRIANGLE;
+	stats.vertices = va.GetLinkedVBOs()[0]->GetVertexCount();
 
 	Renderer renderer;
-	renderer.SetRenderClearColor({ .1, .1, .11 });
-	renderer.SubmitRendererStats(stats);
+	renderer.SetClearColor({ .1, .1, .11 });
+	renderer.SubmitStats(stats);
 	
 	u32 frameCount{};
 
@@ -139,17 +136,18 @@ void Sparky::Application::Run() const noexcept
 		m_Window->ProcessInput(model, 0.05f, shader);
 
 		texture.Bind(0);
-		glBindVertexArray(va);
+		va.Bind();
 
-		renderer.Render(GL_TRIANGLES, sizeof(indices) / sizeof(u8), GL_UNSIGNED_BYTE);
+		renderer.Render(PrimitiveType::Triangles, va.GetLinkedVBOs()[0]->GetVertexCount(), va.GetIBODataType());
 
 		renderer.Update();
 		framebuffer.Unbind();
 
-		m_Window->CreateEditorGUIFrame(framebuffer, renderer.GetStats(), frameCount);
+		m_Window->CreateEditorGUIFrame(framebuffer, frameCount, renderer.GetStats());
 
 		frameCount++;
 	}
 
+	va.Destroy();
 	shader.Destroy();
 }

@@ -10,6 +10,8 @@ namespace Sparky {
 	#define SP_NULL_HANDLE nullptr
 	#define _SP_NODISCARD _NODISCARD
 
+	#define SP_VERTICES_PER_TRIANGLE 3
+
 	#define SP_TRUE true
 	#define SP_FALSE false
 

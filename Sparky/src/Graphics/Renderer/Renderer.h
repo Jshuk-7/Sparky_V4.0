@@ -45,14 +45,14 @@ namespace Sparky {
 		void Submit(const RendererDataCreateInfo* info) noexcept;
 		void Flush() noexcept;
 		
-		void SetRenderClearColor(const vec3& color) const noexcept;
+		void SetClearColor(const vec3& color) const noexcept;
 
 		void Update() const noexcept;
 		void RenderClear() const noexcept;
 
-		void Render(GLenum mode, GLsizei vertexCount, GLenum type) noexcept;
+		void Render(PrimitiveType primitive, u32 totalVertices, IndexBufferDataType iboDataType) noexcept;
 
-		void SubmitRendererStats(const RendererStatistics& stats) noexcept;
+		void SubmitStats(const RendererStatistics& stats) noexcept;
 		const RendererStatistics& GetStats() const noexcept { return m_RendererStats; }
 
 	public:
