@@ -12,6 +12,8 @@ namespace Sparky {
 
 	#define SP_VERTICES_PER_TRIANGLE 3
 
+	#define SP_EXIT(exitCode) exit(exitCode)
+
 	#define SP_TRUE true
 	#define SP_FALSE false
 

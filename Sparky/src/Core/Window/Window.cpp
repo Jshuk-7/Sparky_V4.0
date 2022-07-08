@@ -83,6 +83,7 @@ Sparky::b8 Sparky::Window::Init() const
 	glfwSetWindowUserPointer(m_Window, (void*)this);
 
 	m_Fullscreen ? glfwSetWindowPos(m_Window, SP_NULL, 30) : glfwSetWindowPos(m_Window, m_WindowSize.x / 4, m_WindowSize.y / 4);
+	glfwSetWindowSizeLimits(m_Window, m_WindowSize.x, m_WindowSize.y, MAX_WINDOW_SIZE.x, MAX_WINDOW_SIZE.y);
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
@@ -117,13 +118,14 @@ Sparky::b8 Sparky::Window::Init() const
 		"#version {0}{1}{2}", m_GLContextVersion.major, m_GLContextVersion.minor, m_GLContextVersion.patch
 	);
 
-	const f32 fontSize = 18.0f;
+	const f32 fontSize = 16.0f;
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	s_FontArial =  io.Fonts->AddFontFromFileTTF("Assets/Fonts/Arial.ttf", fontSize);
-	io.FontDefault = io.Fonts->AddFontFromFileTTF("Assets/Fonts/OpenSans/OpenSans-Regular.ttf", fontSize);
+	//io.FontDefault = io.Fonts->AddFontFromFileTTF("Assets/Fonts/OpenSans/OpenSans-Regular.ttf", fontSize);
+	io.FontDefault = io.Fonts->AddFontFromFileTTF("Assets/Fonts/Roboto/Roboto-Regular.ttf", fontSize);
 	io.Fonts->Build();
 	io.BackendFlags |= ImGuiBackendFlags_PlatformHasViewports | ImGuiBackendFlags_RendererHasViewports;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard | ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_ViewportsEnable;
@@ -146,7 +148,7 @@ void Sparky::Window::CreateEditorGUIFrame(FrameBuffer& framebuffer, u32 frameCou
 
 	GetStyle().WindowRounding = 5;
 	GetStyle().WindowTitleAlign = { 0, 0.5 };
-	GetStyle().WindowMinSize = ImVec2{ 300, 260 };
+	GetStyle().WindowMinSize = ImVec2{ 300, 270 };
 	GetStyle().TabBorderSize = 2;
 
 	ImGui_ImplOpenGL3_NewFrame();
@@ -544,13 +546,14 @@ void Sparky::Window::RenderContentBrowserPanel() const noexcept
 
 	static std::filesystem::path currentDirectory = ASSET_PATH;
 
-	i32 w, h;
-	glfwGetFramebufferSize(m_Window, &w, &h);
+	i32 w, h, x, y;
+	glfwGetWindowSize(m_Window, &w, &h);
+	glfwGetWindowPos(m_Window, &x, &y);
 
 	if (!m_Fullscreen)
 	{
-		SetNextWindowPos({ (f32)w / 4, (f32)h - 50 });
 		SetNextWindowSize({ (f32)w, 375 });
+		SetNextWindowPos({ (f32)x, (f32)h - 50});
 	}
 
 	if (Begin("Content Browser", &s_ShowContentBrowserPanel,
@@ -596,8 +599,8 @@ void Sparky::Window::RenderScenePanel(FrameBuffer& framebuffer) noexcept
 {
 	using namespace ImGui;
 
+	SetNextWindowSizeConstraints({ MAX_WINDOW_SIZE.x / 3, MAX_WINDOW_SIZE.y / 3 }, { MAX_WINDOW_SIZE.x, MAX_WINDOW_SIZE.y });
 	PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
-
 	if (Begin("Scene", &s_ShowScenePanel, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_MenuBar))
 	{
 		m_ViewportFocused = IsWindowFocused();
@@ -625,7 +628,6 @@ void Sparky::Window::RenderScenePanel(FrameBuffer& framebuffer) noexcept
 		}
 
 		BeginChild("GameRender");
-
 		ImVec2 wsize = GetWindowSize();
 
 		if (m_WindowSize != *((vec2*)&wsize))
@@ -635,7 +637,11 @@ void Sparky::Window::RenderScenePanel(FrameBuffer& framebuffer) noexcept
 		}
 
 		auto textureId = framebuffer.GetColorAttachmentId();
-		Image((ImTextureID)textureId, ImVec2{ m_WindowSize.x, m_WindowSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+		Image(
+			(ImTextureID)textureId,
+			ImVec2{ m_WindowSize.x, m_WindowSize.y },
+			ImVec2{ 0, 1 }, ImVec2{ 1, 0 }
+		);
 
 		EndChild();
 	}
@@ -649,34 +655,30 @@ void Sparky::Window::RenderStatsPanel(const RendererStatistics& stats, u32 frame
 {
 	using namespace ImGui;
 
-	static ImGuiDir_ rendererStatsDir{ ImGuiDir_Right };
-	static ImGuiDir_ engineStatsDir{ ImGuiDir_Right };
-
+	SetNextWindowSizeConstraints({  }, { 500, 400 });
 	if (Begin("Stats", &s_ShowStatsPanel, ImGuiWindowFlags_NoCollapse))
 	{
-		Text("Renderer"); SameLine();
-		if (ArrowButton("Renderer", rendererStatsDir))
-			rendererStatsDir = rendererStatsDir == ImGuiDir_Down ? ImGuiDir_Right : ImGuiDir_Down;
-
-		if (rendererStatsDir == ImGuiDir_Down)
+		if (TreeNode("Renderer"))
 		{
+			TreePop();
+			Indent();
 			Bullet(); Text("Draw Calls: %i", stats.drawCalls);
 			Bullet(); Text("Triangle Count: %i", stats.triangleCount);
 			Bullet(); Text("Vertices: %i", stats.vertices);
+			Unindent();
 		}
 
 		for (u32 i = 0; i < 4; i++) Spacing();
 
-		Text("Engine"); SameLine();
-		if (ArrowButton("Engine", engineStatsDir))
-			engineStatsDir = engineStatsDir == ImGuiDir_Down ? ImGuiDir_Right : ImGuiDir_Down;
-
-		if (engineStatsDir == ImGuiDir_Down)
+		if (TreeNode("Engine"))
 		{
+			TreePop();
+			Indent();
 			Bullet(); Text("FPS: %i", std::clamp(frameCount / (u32)glfwGetTime(), (u32)0, (u32)100000));
 			Bullet(); Text(m_VSYNC ? "VSYNC: Enabled" : "VSYNC: Disabled");
 			const i8* text = m_GLCoreProfile ? "OpenGL Version: %i.%i.%i core" : "OpenGL Version: %i.%i.%i";
 			Bullet(); Text(text, m_GLContextVersion.major, m_GLContextVersion.minor, m_GLContextVersion.patch);
+			Unindent();
 		}
 	}
 

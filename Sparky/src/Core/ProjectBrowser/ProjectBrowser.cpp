@@ -1,22 +1,25 @@
 #include <memory>
 
+#include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
 #include "ProjectBrowser.h"
 
-ProjectBrowser::ProjectBrowser(Sparky::vec2 windowSize)
+Sparky::ProjectBrowser::ProjectBrowser(vec2 windowSize)
+	: m_WindowSize(windowSize)
 {
 	glfwInit();
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_RESIZABLE, SP_FALSE);
 
-	m_Window = glfwCreateWindow(windowSize.x, windowSize.y, "Sparky Project Browser", SP_NULL_HANDLE, SP_NULL_HANDLE);
+	m_Window = glfwCreateWindow(m_WindowSize.x, m_WindowSize.y, "Sparky Project Browser", SP_NULL_HANDLE, SP_NULL_HANDLE);
 
 	glfwMakeContextCurrent(m_Window);
-	glfwSetWindowPos(m_Window, 1920 / 2 - 400, 1080 / 2 - 300);
+	glfwSetWindowPos(m_Window, Window::MAX_WINDOW_SIZE.x / 2 - 400, Window::MAX_WINDOW_SIZE.y / 2 - 300);
 
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
@@ -25,7 +28,7 @@ ProjectBrowser::ProjectBrowser(Sparky::vec2 windowSize)
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
-	io.FontDefault = io.Fonts->AddFontFromFileTTF("Assets/Fonts/OpenSans/OpenSans-Regular.ttf", 20.0f);
+	io.FontDefault = io.Fonts->AddFontFromFileTTF("Assets/Fonts/Roboto/Roboto-Regular.ttf", 16.5f);
 	io.Fonts->Build();
 	io.BackendFlags |= ImGuiBackendFlags_PlatformHasViewports | ImGuiBackendFlags_RendererHasViewports;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard | ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_ViewportsEnable;
@@ -35,17 +38,7 @@ ProjectBrowser::ProjectBrowser(Sparky::vec2 windowSize)
 	StyleColorsSparkyGray();
 }
 
-ProjectBrowser::~ProjectBrowser()
-{
-	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplGlfw_Shutdown();
-	ImGui::DestroyContext();
-
-	glfwDestroyWindow(m_Window);
-	glfwTerminate();
-}
-
-void ProjectBrowser::TextCentered(const std::string& text)
+void Sparky::ProjectBrowser::TextCentered(const std::string& text)
 {
 	auto windowWidth = ImGui::GetWindowSize().x;
 	auto textWidth = ImGui::CalcTextSize(text.c_str()).x;
@@ -54,7 +47,7 @@ void ProjectBrowser::TextCentered(const std::string& text)
 	ImGui::Text(text.c_str());
 }
 
-void ProjectBrowser::StyleColorsSparkyGray()
+void Sparky::ProjectBrowser::StyleColorsSparkyGray()
 {
 	ImVec4* colors = ImGui::GetStyle().Colors;
 	colors[ImGuiCol_Text] = ImVec4(1, 1, 1, 1);
@@ -86,60 +79,152 @@ void ProjectBrowser::StyleColorsSparkyGray()
 	colors[ImGuiCol_TabUnfocusedActive] = ImVec4(.15, .1505, .151, 1);
 }
 
-void ProjectBrowser::Run()
+void Sparky::ProjectBrowser::Run()
 {
+	stl::Array<const i8*, 8> features{};
+	features[0] = "Language";
+	features[1] = "C++";
+	features[2] = "Graphics API";
+	features[3] = "OpenGL";
+	features[4] = "3D?";
+	features[5] = "Yes!, at some point";
+	features[6] = "Game Object Managment System";
+	features[7] = "ECS";
+
+	u32 textureId;
+
+	TextureCreateInfo texInfo{};
+	texInfo.pFilename = "Assets/Textures/Shawn.png";
+	texInfo.format = TextureFormatType::RGBA;
+
+	Texture texture(&texInfo);
+
+	FrameBufferCreateInfo fbInfo{};
+	fbInfo.size = m_WindowSize;
+
+	FrameBuffer framebuffer(&fbInfo);
+	
+	glCreateTextures(GL_TEXTURE_2D, 1, &textureId);
+	glBindTexture(GL_TEXTURE_2D, textureId);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 50, 50, 0, GL_RGBA, GL_UNSIGNED_BYTE, SP_NULL_HANDLE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
 	while (!glfwWindowShouldClose(m_Window))
 	{
-		glfwPollEvents();
-		if (glfwGetKey(m_Window, GLFW_KEY_ESCAPE)) glfwTerminate();
+		ProcessInput();
 
-		glClear(GL_COLOR_BUFFER_BIT);
 		GUINewFrame();
 
 		using namespace ImGui;
-
-		auto& io = GetIO();
 		
-		if (Begin("Project Browser", SP_NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoDecoration))
+		if (Begin("Project Browser", SP_NULL,
+			ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoDecoration))
 		{
-			TextCentered("Welcome To Sparky Game Engine");
-			for (Sparky::u32 i = 0; i < 5; i++) Spacing();
-			TextCentered("Sparky is currently in development but you can test out the engine today");
+			ImGuiStyle* style = &GetStyle();
+			style->Colors[ImGuiCol_Button] = ImVec4(0.8f, 0.0f, 0.0f, 1.0f);
+			style->Colors[ImGuiCol_ButtonActive] = ImVec4(0.8f, 0.0f, 0.0f, 1.0f);
+			style->Colors[ImGuiCol_ButtonHovered] = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
 
-			SetCursorPos({ (800 / 2) - (300 / 2), (500 / 2) + 150 });
-			if (Button("Start Engine", { 300, 40 }))
+			if (BeginMainMenuBar())
 			{
-				End();
-				Destroy();
-				
-				//Sparky::Application* app = Sparky::Application::MakeInstance();
-				std::unique_ptr<Sparky::Application> app = std::make_unique<Sparky::Application>();
-				app->Run();
-				//delete app;
+				if (BeginMenu("Options"))
+				{
+					if (MenuItem("Exit")) SP_EXIT(SP_EXIT_SUCCESS);
+
+					EndMenu();
+				}
+
+				TextCentered(Log::GetCurrentTime());
+
+				EndMainMenuBar();
 			}
+
+			auto textureId = framebuffer.GetColorAttachmentId();
+			Image(
+				(ImTextureID)textureId,
+				ImVec2{ m_WindowSize.x, m_WindowSize.y },
+				ImVec2{ 0, 1 }, ImVec2{ 1, 0 }
+			);
+
+			for (u32 i = 0; i < 5; i++) Spacing();
+			TextCentered("Welcome To Sparky Game Engine");
+			for (u32 i = 0; i < 5; i++) Spacing();
+			TextCentered("Sparky is currently under heavy development");
+			TextCentered("But you can still beta test the engine today!");
+
+			for (u32 i = 0; i < 5; i++) Spacing();
+			if (TreeNode("Features"))
+			{
+				TreePop();
+				Indent();
+				if (BeginTable("Features Table", 2))
+				{
+					for (size_t i = 0; i < features.Size(); i++)
+					{
+						TableNextColumn();
+						Text("%s", features[i]);
+					}
+
+					EndTable();
+				}
+				Unindent();
+			}
+
+			ImVec2 buttonSize(325, 45);
+			SetCursorPos({
+				(m_WindowSize.x / 2) - (buttonSize.x / 2),
+				(m_WindowSize.y / 2) + 150
+			});
+			if (Button("Launch Editor", buttonSize))
+			{
+				Destroy();	
+				RunGameEngine();
+			}
+
+			SetCursorPos({ m_WindowSize.x - 130, m_WindowSize.y - 30 });
+			Text("Development Build");
 		}
-		End();
 
 		GUIEndFrame();
-
-		glfwSwapBuffers(m_Window);
 	}
 }
 
-void ProjectBrowser::GUINewFrame()
+void Sparky::ProjectBrowser::ProcessInput()
+{
+	glfwPollEvents();
+
+	if (glfwGetKey(m_Window, GLFW_KEY_ESCAPE))
+		SP_EXIT(SP_EXIT_SUCCESS);
+}
+
+void Sparky::ProjectBrowser::RunGameEngine()
+{
+	Application* app = Application::MakeInstance();
+	app->Run();
+
+	if (app != SP_NULL_HANDLE)
+		delete app;
+
+	SP_EXIT(SP_EXIT_SUCCESS);
+}
+
+void Sparky::ProjectBrowser::GUINewFrame()
 {
 	using namespace ImGui;
+
+	glClear(GL_COLOR_BUFFER_BIT);
 
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	NewFrame();
-
-	DockSpaceOverViewport(GetWindowViewport());
 }
 
-void ProjectBrowser::GUIEndFrame()
+void Sparky::ProjectBrowser::GUIEndFrame()
 {
 	using namespace ImGui;
+
+	End();
 
 	EndFrame();
 	ImGui::Render();
@@ -156,10 +241,14 @@ void ProjectBrowser::GUIEndFrame()
 		RenderPlatformWindowsDefault();
 		glfwMakeContextCurrent(backup_current_context);
 	}
+
+	glfwSwapBuffers(m_Window);
 }
 
-void ProjectBrowser::Destroy()
+void Sparky::ProjectBrowser::Destroy()
 {
+	ImGui::End();
+
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();

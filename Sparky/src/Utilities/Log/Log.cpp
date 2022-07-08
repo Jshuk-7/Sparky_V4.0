@@ -5,7 +5,7 @@
 #include "Log.h"
 
 std::vector<std::string> Sparky::Log::s_Logs;
-const Sparky::i8* Sparky::Log::s_LogBaseMessage = "ENGINE: ";
+const Sparky::i8* Sparky::Log::s_LogBaseMessage = "SPARKY: ";
 
 std::string Sparky::Log::GetCurrentTime()
 {

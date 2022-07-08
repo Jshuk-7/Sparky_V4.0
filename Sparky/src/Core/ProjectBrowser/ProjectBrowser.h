@@ -2,21 +2,28 @@
 
 #include "Sparky.h"
 
-class ProjectBrowser
-{
-public:
-	ProjectBrowser(Sparky::vec2 windowSize);
-	~ProjectBrowser();
+namespace Sparky {
+	class ProjectBrowser
+	{
+	public:
+		ProjectBrowser(vec2 windowSize = vec2(800, 500));
 
-	void Run();
-private:
-	void GUINewFrame();
-	void GUIEndFrame();
-	void Destroy();
+		void Run();
+	
+	private:
+		void ProcessInput();
 
-	void TextCentered(const std::string& text);
-	void StyleColorsSparkyGray();
+		void RunGameEngine();
 
+		void GUINewFrame();
+		void GUIEndFrame();
+		void Destroy();
 
-	GLFWwindow* m_Window;
-};
+		void TextCentered(const std::string& text);
+		void StyleColorsSparkyGray();
+
+		GLFWwindow* m_Window;
+		vec2 m_WindowSize;
+
+	};
+}
