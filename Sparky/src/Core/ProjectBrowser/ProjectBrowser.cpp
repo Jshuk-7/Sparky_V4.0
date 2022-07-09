@@ -5,6 +5,7 @@
 #include <imgui_impl_opengl3.h>
 
 #include "ProjectBrowser.h"
+#include "Core/Editor/EditorTools.h"
 
 Sparky::ProjectBrowser::ProjectBrowser(vec2 windowSize)
 	: m_WindowSize(windowSize)
@@ -48,15 +49,6 @@ Sparky::ProjectBrowser::ProjectBrowser(vec2 windowSize)
 	ImGui_ImplOpenGL3_Init("#version 460");
 
 	StyleColorsSparkyGray();
-}
-
-void Sparky::ProjectBrowser::TextCentered(const std::string& text)
-{
-	auto windowWidth = ImGui::GetWindowSize().x;
-	auto textWidth = ImGui::CalcTextSize(text.c_str()).x;
-
-	ImGui::SetCursorPosX((windowWidth - textWidth) * 0.5f);
-	ImGui::Text(text.c_str());
 }
 
 void Sparky::ProjectBrowser::StyleColorsSparkyGray()
@@ -128,16 +120,16 @@ void Sparky::ProjectBrowser::Run()
 					ImGui::EndMenu();
 				}
 
-				TextCentered(Log::GetCurrentTime());
+				Editor::TextCentered(Log::GetCurrentTime());
 
 				EndMainMenuBar();
 			}
 
 			for (u32 i = 0; i < 5; i++) Spacing();
-			TextCentered("Welcome To Sparky Game Engine");
+			Editor::TextCentered("Welcome To Sparky Game Engine");
 			for (u32 i = 0; i < 5; i++) Spacing();
-			TextCentered("Sparky is currently under heavy development");
-			TextCentered("But you can still beta test the engine today!");
+			Editor::TextCentered("Sparky is currently under heavy development");
+			Editor::TextCentered("But you can still beta test the engine today!");
 
 			for (u32 i = 0; i < 5; i++) Spacing();
 			if (TreeNode("Features"))
@@ -162,7 +154,6 @@ void Sparky::ProjectBrowser::Run()
 				(m_WindowSize.x / 2) - (buttonSize.x / 2),
 				(m_WindowSize.y / 2) + 150
 			});
-			SetKeyboardFocusHere();
 			if (Button("Launch Editor", buttonSize))
 			{
 				Destroy();	

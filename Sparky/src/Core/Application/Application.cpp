@@ -37,7 +37,7 @@ Sparky::Application::~Application()
 Sparky::Application* Sparky::Application::MakeInstance()
 {
 	static Application* app = new Application();
-	//PlaySound(L"Assets/Audio/Music", SP_NULL, SND_ASYNC);
+	PlaySound(L"Assets/Audio/Music", SP_NULL, SND_ASYNC);
 
 	if (app != SP_NULL_HANDLE)
 		return app;
