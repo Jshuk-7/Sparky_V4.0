@@ -1,4 +1,4 @@
-#include <memory>
+#include <stb_image.h>
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
@@ -16,10 +16,22 @@ Sparky::ProjectBrowser::ProjectBrowser(vec2 windowSize)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, SP_FALSE);
 
-	m_Window = glfwCreateWindow(m_WindowSize.x, m_WindowSize.y, "Sparky Project Browser", SP_NULL_HANDLE, SP_NULL_HANDLE);
+	const i8* title{ "Sparky Game Engine v0.3.0 - Development Build (Project Browser)" };
+	m_Window = glfwCreateWindow(m_WindowSize.x, m_WindowSize.y, title, SP_NULL_HANDLE, SP_NULL_HANDLE);
 
 	glfwMakeContextCurrent(m_Window);
 	glfwSetWindowPos(m_Window, Window::MAX_WINDOW_SIZE.x / 2 - 400, Window::MAX_WINDOW_SIZE.y / 2 - 300);
+
+	i32 width, height, nrChannels;
+	const i8* filename{ "Assets/Resources/SparkyLogo.jpg" };
+	u8* textureData = stbi_load(filename, &width, &height, &nrChannels, STBI_rgb_alpha);
+
+	GLFWimage image{};
+	image.width = width;
+	image.height = height;
+	image.pixels = textureData;
+	glfwSetWindowIcon(m_Window, 1, &image);
+	stbi_image_free(textureData);
 
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
@@ -91,25 +103,6 @@ void Sparky::ProjectBrowser::Run()
 	features[6] = "Game Object Managment System";
 	features[7] = "ECS";
 
-	u32 textureId;
-
-	TextureCreateInfo texInfo{};
-	texInfo.pFilename = "Assets/Textures/Shawn.png";
-	texInfo.format = TextureFormatType::RGBA;
-
-	Texture texture(&texInfo);
-
-	FrameBufferCreateInfo fbInfo{};
-	fbInfo.size = m_WindowSize;
-
-	FrameBuffer framebuffer(&fbInfo);
-	
-	glCreateTextures(GL_TEXTURE_2D, 1, &textureId);
-	glBindTexture(GL_TEXTURE_2D, textureId);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 50, 50, 0, GL_RGBA, GL_UNSIGNED_BYTE, SP_NULL_HANDLE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
 	while (!glfwWindowShouldClose(m_Window))
 	{
 		ProcessInput();
@@ -132,20 +125,13 @@ void Sparky::ProjectBrowser::Run()
 				{
 					if (MenuItem("Exit")) SP_EXIT(SP_EXIT_SUCCESS);
 
-					EndMenu();
+					ImGui::EndMenu();
 				}
 
 				TextCentered(Log::GetCurrentTime());
 
 				EndMainMenuBar();
 			}
-
-			auto textureId = framebuffer.GetColorAttachmentId();
-			Image(
-				(ImTextureID)textureId,
-				ImVec2{ m_WindowSize.x, m_WindowSize.y },
-				ImVec2{ 0, 1 }, ImVec2{ 1, 0 }
-			);
 
 			for (u32 i = 0; i < 5; i++) Spacing();
 			TextCentered("Welcome To Sparky Game Engine");
@@ -176,13 +162,14 @@ void Sparky::ProjectBrowser::Run()
 				(m_WindowSize.x / 2) - (buttonSize.x / 2),
 				(m_WindowSize.y / 2) + 150
 			});
+			SetKeyboardFocusHere();
 			if (Button("Launch Editor", buttonSize))
 			{
 				Destroy();	
 				RunGameEngine();
 			}
-
-			SetCursorPos({ m_WindowSize.x - 130, m_WindowSize.y - 30 });
+			
+			SetCursorPos({ m_WindowSize.x - 130, m_WindowSize.y - 50 });
 			Text("Development Build");
 		}
 

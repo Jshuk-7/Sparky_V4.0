@@ -123,6 +123,19 @@
     <ClCompile Include="src\Core\Window\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core\Editor\EditorColors.h" />
+    <ClInclude Include="src\Core\Editor\EditorTools.h" />
+    <ClInclude Include="src\Core\Editor\Panels\AboutPanel.h" />
+    <ClInclude Include="src\Core\Editor\Panels\ConsolePanel.h" />
+    <ClInclude Include="src\Core\Editor\Editor.h" />
+    <ClInclude Include="src\Core\Editor\Panels\ContentBrowserPanel.h" />
+    <ClInclude Include="src\Core\Editor\Panels\InspectorPanel.h" />
+    <ClInclude Include="src\Core\Editor\Panels\KeyboardShortcutsPanel.h" />
+    <ClInclude Include="src\Core\Editor\Panels\MainMenuBar.h" />
+    <ClInclude Include="src\Core\Editor\Panels\SceneHierarchyPanel.h" />
+    <ClInclude Include="src\Core\Editor\Panels\ScenePanel.h" />
+    <ClInclude Include="src\Core\Editor\Panels\SettingsPanel.h" />
+    <ClInclude Include="src\Core\Editor\Panels\StatsPanel.h" />
     <ClInclude Include="src\Core\ProjectBrowser\ProjectBrowser.h" />
     <ClInclude Include="src\Core\Scene\Components.h" />
     <ClInclude Include="src\Core\Scene\Scene.h" />
@@ -168,6 +181,7 @@
     <Font Include="Assets\Fonts\SegoeUIHistoric.ttf" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="Assets\Resources\SparkyLogo.jpg" />
     <Image Include="Assets\Textures\AwesomeFace.png" />
     <Image Include="Assets\Textures\Container.jpg" />
     <Image Include="Assets\Textures\Crate.png" />

@@ -6,6 +6,7 @@
 #include <imgui.h>
 
 #include "Config/Defines.h"
+#include "Core/Editor/Editor.h"
 #include "Math/SparkyMath.h"
 #include "Core/SparkySTL/SparkySTL.h"
 #include "Graphics/Shader/Shader.h"
@@ -22,6 +23,7 @@ namespace Sparky {
 		b8 listGPUExtensions;
 		b8 debugMode;
 		b8 VSYNC;
+		//b8 enableDepthBuffer;
 		vec2 windowSize;
 	};
 
@@ -33,7 +35,7 @@ namespace Sparky {
 
 		void CreateEditorGUIFrame(FrameBuffer& framebuffer, u32 frameCount, const RendererStatistics& stats) noexcept;
 
-		void ProcessInput(mat4& model, f32 speed, Shader& shader) noexcept;
+		void ProcessInput(mat4& model, f32 speed, f32& mixValue, Shader& shader) noexcept;
 		b8 Closed() const noexcept;
 		inline void Close() const noexcept { glfwSetWindowShouldClose(m_Window, SP_TRUE); }
 
@@ -54,6 +56,8 @@ namespace Sparky {
 
 		~Window() noexcept;
 
+		void SetIcon() const noexcept;
+
 	private:
 		Window(const WindowCreateInfo* createInfo);
 		Window(const Window&) = delete;
@@ -62,20 +66,6 @@ namespace Sparky {
 		b8 QueryExtensionSupport() const;
 
 		void ToggleFullScreen() const noexcept;
-		void ToggleFullScreenSceneView() noexcept;
-
-		void RenderMainMenuBar() const noexcept;
-		void RenderKeyboardShortcutsPanel() const noexcept;
-		void RenderAboutPanel() const noexcept;
-		void StyleColorsLightGray() const noexcept;
-		void StyleColorsSparkyGray() const noexcept;
-		void RenderSettingsPanel() noexcept;
-		void RenderSceneHierarchyPanel() const noexcept;
-		void RenderInspectorPanel() const noexcept;
-		void RenderConsolePanel() const noexcept;
-		void RenderContentBrowserPanel() const noexcept;
-		void RenderScenePanel(FrameBuffer& framebuffer) noexcept;
-		void RenderStatsPanel(const RendererStatistics& stats, u32 frameCount) const noexcept;
 
 		static void KeyPressedCallback(GLFWwindow* window, i32 key, i32 scancode, i32 action, i32 mods);
 		static void FrameBufferResizeCallback(GLFWwindow* window, i32 width, i32 height);
@@ -112,6 +102,18 @@ namespace Sparky {
 		static b8 s_ShowContentBrowserPanel;
 		static b8 s_ShowScenePanel;
 		static b8 s_ShowStatsPanel;
+
+		Editor::MainMenuBarPanelInfo m_MainMenuInfo{
+			s_ShowAboutPanel, s_ShowConsolePanel, s_ShowContentBrowserPanel,
+			s_ShowInspectorPanel, s_ShowKeyboardShortcutsPanel, s_ShowSceneHierarchyPanel,
+			s_ShowScenePanel, s_ShowSettingsPanel
+		};
+
+		Editor::SceneFullscreenViewInfo m_SceneViewInfo{
+			s_ShowAboutPanel, s_ShowConsolePanel, s_ShowContentBrowserPanel,
+			s_ShowInspectorPanel, s_ShowKeyboardShortcutsPanel, s_ShowSceneHierarchyPanel,
+			s_ShowScenePanel, s_ShowSettingsPanel, s_ShowStatsPanel
+		};
 
 		static ImFont* s_FontArial;
 

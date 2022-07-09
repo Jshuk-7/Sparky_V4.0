@@ -1,5 +1,10 @@
 #pragma once
 
+#define GLFW_INCLUDE_OPENGL
+#include <GLFW/glfw3.h>
+
+#include <stb_image.h>
+
 #include "Config/Defines.h"
 #include "Utilities/Utilities.h"
 

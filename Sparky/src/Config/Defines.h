@@ -1,8 +1,5 @@
 #pragma once
 
-#define GLFW_INCLUDE_OPENGL
-#include <GLFW/glfw3.h>
-
 namespace Sparky {
 	#define SP_EXIT_SUCCESS 0
 	#define SP_EXIT_FAILURE 1

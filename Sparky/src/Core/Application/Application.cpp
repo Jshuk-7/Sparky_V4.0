@@ -4,8 +4,6 @@
 
 Sparky::Application::Application()
 {
-	PlaySound(L"Assets/Audio/Music", SP_NULL, SND_ASYNC);
-
 	WindowCreateInfo windowInfo{};
 	windowInfo.pApplicationName = "Sparky Editor";
 	windowInfo.glContextVersion = Version(4, 6, 0);
@@ -23,6 +21,7 @@ Sparky::Application::Application()
 		SP_FATAL("Failed to Initialize Window!");
 		throw SparkyException(__LINE__, __FILE__);
 	}
+	m_Window->SetIcon();
 
 	m_ActiveScene = new Scene();
 }
@@ -38,6 +37,7 @@ Sparky::Application::~Application()
 Sparky::Application* Sparky::Application::MakeInstance()
 {
 	static Application* app = new Application();
+	//PlaySound(L"Assets/Audio/Music", SP_NULL, SND_ASYNC);
 
 	if (app != SP_NULL_HANDLE)
 		return app;
@@ -77,16 +77,25 @@ void Sparky::Application::Run() const noexcept
 
 	shader.SetUniform("u_Proj", mat4::orthographic(-2.75f, 2.75f));
 	shader.SetUniform("u_TexImage", 0);
+	shader.SetUniform("u_TexImage2", 1);
 
 	mat4 model = mat4::identity();
 
 	TextureCreateInfo texInfo{};
-	texInfo.pFilename = "Assets/Textures/DarkSky.jpg";
+	texInfo.pFilename = "Assets/Resources/SparkyLogo.jpg";
 	texInfo.format = TextureFormatType::RGBA;
 	texInfo.pixelType = TexturePixelType::Smooth;
 	texInfo.flipY = SP_TRUE;
 
+	TextureCreateInfo texInfo2{};
+	texInfo2.pFilename = "Assets/Textures/OpenGL.png";
+	//texInfo2.pFilename = "Assets/Textures/Shawn.png";
+	texInfo2.format = TextureFormatType::RGBA;
+	texInfo2.pixelType = TexturePixelType::Smooth;
+	texInfo2.flipY = SP_TRUE;
+
 	Texture texture(&texInfo);
+	Texture texture2(&texInfo2);
 
 	FrameBufferCreateInfo fbInfo{};
 	fbInfo.size = Window::MAX_WINDOW_SIZE;
@@ -125,6 +134,8 @@ void Sparky::Application::Run() const noexcept
 	renderer.SetClearColor({ .1, .1, .11 });
 	renderer.SubmitStats(stats);
 	
+	f32 moveSpeed{ 0.05f };
+	f32 mixValue{ 0.5f };
 	u32 frameCount{};
 
 	while (!m_Window->Closed())
@@ -133,9 +144,11 @@ void Sparky::Application::Run() const noexcept
 		renderer.RenderClear();
 
 		shader.SetUniform("u_Model", model);
-		m_Window->ProcessInput(model, 0.05f, shader);
+		m_Window->ProcessInput(model, moveSpeed, mixValue, shader);	
 
 		texture.Bind(0);
+		texture2.Bind(1);
+		shader.SetUniform("u_MixValue", mixValue);
 		va.Bind();
 
 		renderer.Render(PrimitiveType::Triangles, va.GetLinkedVBOs()[0]->GetVertexCount(), va.GetIBODataType());

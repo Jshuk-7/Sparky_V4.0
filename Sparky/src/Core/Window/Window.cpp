@@ -1,12 +1,9 @@
-#include <filesystem>
+#include <fstream>
 
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
 #include "Sparky.h"
-
-/// Once we have projects change this
-static const std::filesystem::path ASSET_PATH = "Assets";
 
 const Sparky::vec2 Sparky::Window::MAX_WINDOW_SIZE = vec2(1920, 1080);
 
@@ -47,6 +44,20 @@ Sparky::Window::~Window() noexcept
 
 	glfwDestroyWindow(m_Window);
 	glfwTerminate();
+}
+
+void Sparky::Window::SetIcon() const noexcept
+{
+	i32 width, height, nrChannels;
+	const i8* filename{ "Assets/Resources/SparkyLogo.jpg" };
+	u8* textureData = stbi_load(filename, &width, &height, &nrChannels, STBI_rgb_alpha);
+
+	GLFWimage image{};
+	image.width = width;
+	image.height = height;
+	image.pixels = textureData;
+	glfwSetWindowIcon(m_Window, 1, &image);
+	stbi_image_free(textureData);
 }
 
 Sparky::Window* Sparky::Window::CreateInstance(const WindowCreateInfo* createInfo)
@@ -124,7 +135,6 @@ Sparky::b8 Sparky::Window::Init() const
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	s_FontArial =  io.Fonts->AddFontFromFileTTF("Assets/Fonts/Arial.ttf", fontSize);
-	//io.FontDefault = io.Fonts->AddFontFromFileTTF("Assets/Fonts/OpenSans/OpenSans-Regular.ttf", fontSize);
 	io.FontDefault = io.Fonts->AddFontFromFileTTF("Assets/Fonts/Roboto/Roboto-Regular.ttf", fontSize);
 	io.Fonts->Build();
 	io.BackendFlags |= ImGuiBackendFlags_PlatformHasViewports | ImGuiBackendFlags_RendererHasViewports;
@@ -134,16 +144,13 @@ Sparky::b8 Sparky::Window::Init() const
 	ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
 	ImGui_ImplOpenGL3_Init(openGLVersion.c_str());
 
-	StyleColorsSparkyGray();
+	Editor::StyleColorsSparkyGray();
 
 	return QueryExtensionSupport();
 }
 
 void Sparky::Window::CreateEditorGUIFrame(FrameBuffer& framebuffer, u32 frameCount, const RendererStatistics& stats) noexcept
 {
-	m_VSYNC ? glfwSwapInterval(1) : glfwSwapInterval(0);
-	m_DebugMode ? glPolygonMode(GL_FRONT_AND_BACK, GL_LINE) : glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
 	using namespace ImGui;
 
 	GetStyle().WindowRounding = 5;
@@ -156,17 +163,18 @@ void Sparky::Window::CreateEditorGUIFrame(FrameBuffer& framebuffer, u32 frameCou
 	NewFrame();
 
 	DockSpaceOverViewport(GetWindowViewport());
-	RenderMainMenuBar();
 
-	if (s_ShowKeyboardShortcutsPanel)  RenderKeyboardShortcutsPanel();
-	if (s_ShowAboutPanel)              RenderAboutPanel();
-	if (s_ShowSettingsPanel)           RenderSettingsPanel();
-	if (s_ShowSceneHierarchyPanel)     RenderSceneHierarchyPanel();
-	if (s_ShowInspectorPanel)          RenderInspectorPanel();
-	if (s_ShowConsolePanel)            RenderConsolePanel();
-	if (s_ShowContentBrowserPanel)     RenderContentBrowserPanel();
-	if (s_ShowScenePanel)              RenderScenePanel(framebuffer);
-	if (s_ShowStatsPanel)              RenderStatsPanel(stats, frameCount);
+	Editor::RenderMainMenuBar(m_MainMenuInfo);
+
+	if (s_ShowKeyboardShortcutsPanel)  Editor::RenderKeyboardShortcutsPanel(s_ShowKeyboardShortcutsPanel);
+	if (s_ShowAboutPanel)              Editor::RenderAboutPanel(s_ShowAboutPanel);
+	if (s_ShowSettingsPanel)           Editor::RenderSettingsPanel(s_ShowSettingsPanel, m_VSYNC, m_DebugMode);
+	if (s_ShowSceneHierarchyPanel)     Editor::RenderSceneHierarchyPanel(s_ShowSceneHierarchyPanel);
+	if (s_ShowInspectorPanel)          Editor::RenderInspectorPanel(s_ShowInspectorPanel);
+	if (s_ShowConsolePanel)            Editor::RenderConsolePanel(s_ShowConsolePanel);
+	if (s_ShowContentBrowserPanel)     Editor::RenderContentBrowserPanel(s_ShowContentBrowserPanel, m_Fullscreen, s_FontArial, m_Window);
+	if (s_ShowScenePanel)              Editor::RenderScenePanel(m_SceneViewInfo, m_ViewportFocused, m_Fullscreen, framebuffer, MAX_WINDOW_SIZE, m_WindowSize);
+	if (s_ShowStatsPanel)              Editor::RenderStatsPanel(s_ShowStatsPanel, m_VSYNC, m_GLCoreProfile, stats, frameCount, m_GLContextVersion);
 
 	EndFrame();
 	ImGui::Render();
@@ -175,6 +183,8 @@ void Sparky::Window::CreateEditorGUIFrame(FrameBuffer& framebuffer, u32 frameCou
 	i32 display_w, display_h;
 	glfwGetFramebufferSize(m_Window, &display_w, &display_h);
 	glViewport(SP_NULL, SP_NULL, display_w, display_h);
+	m_VSYNC ? glfwSwapInterval(1) : glfwSwapInterval(0);
+	m_DebugMode ? glPolygonMode(GL_FRONT_AND_BACK, GL_LINE) : glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	if (GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 	{
@@ -202,48 +212,21 @@ void Sparky::Window::ToggleFullScreen() const noexcept
 	fullscreen ? glfwMaximizeWindow(m_Window) : glfwRestoreWindow(m_Window);
 }
 
-void Sparky::Window::ToggleFullScreenSceneView() noexcept
-{
-	static b8 fullscreenSceneView{};
-	fullscreenSceneView = !fullscreenSceneView;
-
-	if (fullscreenSceneView)
-	{
-		s_ShowScenePanel = SP_TRUE;
-
-		s_ShowKeyboardShortcutsPanel = SP_FALSE;
-		s_ShowAboutPanel = SP_FALSE;
-		s_ShowSettingsPanel = SP_FALSE;
-		s_ShowSceneHierarchyPanel = SP_FALSE;
-		s_ShowInspectorPanel = SP_FALSE;
-		s_ShowConsolePanel = SP_FALSE;
-		s_ShowContentBrowserPanel = SP_FALSE;
-		s_ShowStatsPanel = SP_FALSE;
-	}
-	else
-	{
-		s_ShowSceneHierarchyPanel = SP_TRUE;
-		s_ShowInspectorPanel = SP_TRUE;
-		s_ShowConsolePanel = SP_TRUE;
-		s_ShowScenePanel = SP_TRUE;
-	}
-}
-
-void Sparky::Window::ProcessInput(mat4& model, f32 speed, Shader& shader) noexcept
+void Sparky::Window::ProcessInput(mat4& model, f32 speed, f32& mixValue, Shader& shader) noexcept
 {
 	glfwPollEvents();
 
-	if (KeyDown(GLFW_KEY_ESCAPE)) Close();
-	if (KeyDown(GLFW_KEY_F1))     m_DebugMode = !m_DebugMode;
-	if (KeyDown(GLFW_KEY_F2))     StyleColorsSparkyGray();
-	if (KeyDown(GLFW_KEY_F3))     StyleColorsLightGray();
-	if (KeyDown(GLFW_KEY_F4))     ImGui::StyleColorsDark();
-	if (KeyDown(GLFW_KEY_F5))     { }
-	if (KeyDown(GLFW_KEY_F6))     shader.ReCompile();
-	if (KeyDown(GLFW_KEY_F11))    ToggleFullScreen();
+	if (KeyDown(GLFW_KEY_ESCAPE))  Close();
+	if (KeyDown(GLFW_KEY_F1))      m_DebugMode = !m_DebugMode;
+	if (KeyDown(GLFW_KEY_F2))      Editor::StyleColorsSparkyGray();
+	if (KeyDown(GLFW_KEY_F3))      Editor::StyleColorsLightGray();
+	if (KeyDown(GLFW_KEY_F4))      ImGui::StyleColorsDark();
+	if (KeyDown(GLFW_KEY_F5))      { }
+	if (KeyDown(GLFW_KEY_F6))      shader.ReCompile();
+	if (KeyDown(GLFW_KEY_F11))     ToggleFullScreen();
 
 	if (KeyDown(GLFW_KEY_F12) && KeyDown(GLFW_KEY_LEFT_SHIFT))
-		ToggleFullScreenSceneView();
+		Editor::ToggleFullScreenSceneView(m_SceneViewInfo);
 	if (KeyDown(GLFW_KEY_SPACE) && KeyDown(GLFW_KEY_LEFT_CONTROL))
 		s_ShowContentBrowserPanel = !s_ShowContentBrowserPanel;
 
@@ -262,6 +245,13 @@ void Sparky::Window::ProcessInput(mat4& model, f32 speed, Shader& shader) noexce
 			model *= mat4::rotate(speed * 15, {0, 0, 1});
 		if (KeyHeld(GLFW_KEY_T))
 			model *= mat4::rotate(-speed * 15, { 0, 0, 1 });
+
+		if (KeyDown(GLFW_KEY_HOME))
+			mixValue += 0.1f;
+		if (KeyDown(GLFW_KEY_END))
+			mixValue -= 0.1f;
+
+		mixValue = std::clamp(mixValue, 0.0f, 1.0f);
 	}
 }
 
@@ -290,399 +280,6 @@ Sparky::b8 Sparky::Window::QueryExtensionSupport() const
 	}
 
 	return SP_TRUE;
-}
-
-void Sparky::Window::RenderMainMenuBar() const noexcept
-{
-	using namespace ImGui;
-
-	if (BeginMainMenuBar())
-	{
-		if (BeginMenu("File"))
-		{
-			if (MenuItem("New", "Ctrl+N")) { }
-			if (MenuItem("Open", "Ctrl+O")) { }
-			if (MenuItem("Save As...", "Ctrl+Shift+S")) { }
-			if (MenuItem("Settings")) s_ShowSettingsPanel = !s_ShowSettingsPanel;
-			if (MenuItem("Exit")) Close();
-
-			EndMenu();
-		}
-
-		if (BeginMenu("Edit"))
-		{
-			if (MenuItem("Undo", "Ctrl+Z")) {}
-			if (MenuItem("Redo", "Ctrl+Shift+Z")) {}
-
-			EndMenu();
-		}
-
-		if (BeginMenu("Window"))
-		{
-			if (MenuItem("Scene"))            s_ShowScenePanel = !s_ShowScenePanel;
-			if (MenuItem("Scene Hierarchy"))  s_ShowSceneHierarchyPanel = !s_ShowSceneHierarchyPanel;
-			if (MenuItem("Console"))          s_ShowConsolePanel = !s_ShowConsolePanel;
-			if (MenuItem("Content Browser"))  s_ShowContentBrowserPanel = !s_ShowContentBrowserPanel;
-			if (MenuItem("Inspector"))        s_ShowInspectorPanel = !s_ShowInspectorPanel;
-
-			EndMenu();
-		}
-
-		if (BeginMenu("Help"))
-		{
-			if (MenuItem("Keyboard Shortcuts")) s_ShowKeyboardShortcutsPanel = !s_ShowKeyboardShortcutsPanel;
-			if (MenuItem("About Sparky")) s_ShowAboutPanel = !s_ShowAboutPanel;
-
-			EndMenu();
-		}
-
-		TextCentered(Log::GetCurrentTime());
-
-		EndMainMenuBar();
-	}
-}
-
-void Sparky::Window::RenderKeyboardShortcutsPanel() const noexcept
-{
-	using namespace ImGui;
-
-	SetNextWindowSizeConstraints({ 600, 400 }, { 800, 600 });
-	if (Begin("Keyboard Shortcuts", &s_ShowKeyboardShortcutsPanel, ImGuiWindowFlags_NoCollapse))
-	{
-		BeginChild("Keyboard");
-
-		Bullet(); Text("Maximize Scene: Ctrl+Space");
-
-
-		EndChild();
-	}
-
-	End();
-}
-
-void Sparky::Window::RenderAboutPanel() const noexcept
-{
-	using namespace ImGui;
-
-	SetNextWindowSize({ 500, 350 });
-	if (Begin("About Sparky", &s_ShowAboutPanel, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize))
-	{
-		BeginChild("About");
-
-		TextCentered("Welcome to Sparky Game Engine.");
-		TextCentered("Sparky is currently under development");
-
-		EndChild();
-	}
-
-	End();
-}
-
-void Sparky::Window::StyleColorsLightGray() const noexcept
-{
-	ImVec4* colors                       = ImGui::GetStyle().Colors;
-	colors[ImGuiCol_Text]                = ImVec4(1, 1, 1, 1);
-	colors[ImGuiCol_WindowBg]            = ImVec4(.2, .2, .2, .95);
-	colors[ImGuiCol_PopupBg]             = ImVec4(.15, .15, .15, 1);
-	colors[ImGuiCol_Button]             = ImVec4(.2, .4, .75, .65);
-	colors[ImGuiCol_TitleBg]             = ImVec4(.1, .1, .1, 1);
-	colors[ImGuiCol_TitleBgActive]       = ImVec4(.15, .15, .15, 1);
-	colors[ImGuiCol_Tab]                 = ImVec4(.2, .4, .75, .5);
-	colors[ImGuiCol_TabActive]           = ImVec4(.2, .4, .75, 1);
-	colors[ImGuiCol_TabUnfocusedActive]  = ImVec4(.2, .4, .75, .65);
-	colors[ImGuiCol_FrameBg]             = ImVec4(.5, .5, .5, .25);
-	colors[ImGuiCol_MenuBarBg]           = ImVec4(.15, .15, .15, 1);
-}
-
-void Sparky::Window::StyleColorsSparkyGray() const noexcept
-{
-	ImVec4* colors = ImGui::GetStyle().Colors;
-	colors[ImGuiCol_Text] = ImVec4(1, 1, 1, 1);
-	colors[ImGuiCol_WindowBg] = ImVec4(.1, .105, .11, .90);
-	colors[ImGuiCol_MenuBarBg] = ImVec4(.15, .15, .15, 1);
-
-	colors[ImGuiCol_Header] = ImVec4(.2, .205, .21, 1);
-	colors[ImGuiCol_HeaderHovered] = ImVec4(.3, .305, .31, 1);
-	colors[ImGuiCol_HeaderActive] = ImVec4(.15, .1505, .151, 1);
-
-	colors[ImGuiCol_Button] = ImVec4(.2, .205, .21, 1);
-	colors[ImGuiCol_ButtonHovered] = ImVec4(.3, .305, .31, 1);
-	colors[ImGuiCol_ButtonActive] = ImVec4(.15, .1505, .151, 1);
-
-	colors[ImGuiCol_FrameBg] = ImVec4(.2, .205, .21, 1);
-	colors[ImGuiCol_FrameBgHovered] = ImVec4(.3, .305, .31, 1);
-	colors[ImGuiCol_FrameBgActive] = ImVec4(.15, .1505, .151, 1);
-
-	colors[ImGuiCol_Tab] = ImVec4(.15, .1505, .151, 1);
-	colors[ImGuiCol_TabHovered] = ImVec4(.38, .3805, .381, 1);
-	colors[ImGuiCol_TabActive] = ImVec4(.28, .2805, .281, 1);
-	colors[ImGuiCol_TabUnfocused] = ImVec4(.15, .1505, .151, 1);
-	colors[ImGuiCol_TabUnfocusedActive] = ImVec4(.2, .205, .21, 1);
-
-	colors[ImGuiCol_PopupBg] = ImVec4(.15, .15, .15, 1);
-
-	colors[ImGuiCol_TitleBg] = ImVec4(.15, .1505, .151, 1);
-	colors[ImGuiCol_TitleBgActive] = ImVec4(.15, .1505, .151, 1);
-	colors[ImGuiCol_TabUnfocusedActive] = ImVec4(.15, .1505, .151, 1);
-}
-
-void Sparky::Window::RenderSettingsPanel() noexcept
-{
-	using namespace ImGui;
-
-	SetNextWindowSizeConstraints({ 600, 400 }, { 800, 600 });
-	if (Begin("Settings", &s_ShowSettingsPanel, ImGuiWindowFlags_NoCollapse))
-	{
-		for (u32 i = 0; i < 2; i++) Spacing();
-
-		if (BeginChild("Settings"))
-		{
-			TextCentered("Editor"); Separator(); Spacing();
-			if (BeginMenu("Theme"))
-			{
-				if (MenuItem("Sparky Gray")) StyleColorsSparkyGray();
-				if (MenuItem("Light Gray")) StyleColorsLightGray();
-				if (MenuItem("Original Dark")) StyleColorsDark();
-				if (MenuItem("Retro Classic")) StyleColorsClassic();
-				if (MenuItem("Light")) StyleColorsLight();
-
-				ImGui::EndMenu();
-			}
-
-			for (u32 i = 0; i < 8; i++) Spacing();
-
-			TextCentered("Graphics"); Separator(); Spacing();
-			Checkbox("VSYNC", &m_VSYNC);
-			Checkbox("Debug Mode", &m_DebugMode);
-
-			EndChild();
-		}
-	}
-
-	End();
-}
-
-void Sparky::Window::RenderSceneHierarchyPanel() const noexcept
-{
-	using namespace ImGui;
-
-	static ImGuiDir_ dir{ ImGuiDir_Right };
-
-	if (Begin("Scene Hierarchy", &s_ShowSceneHierarchyPanel, ImGuiWindowFlags_NoCollapse))
-	{
-		BeginChild("Scene Hierarchy");
-		if (ArrowButton("Hello", dir))
-		{
-			if (dir == ImGuiDir_Down) dir = ImGuiDir_Right;
-			else if (dir == ImGuiDir_Right) dir = ImGuiDir_Down;
-		}
-
-		EndChild();
-	}
-
-	End();
-}
-
-void Sparky::Window::RenderInspectorPanel() const noexcept
-{
-	using namespace ImGui;
-
-	f32 pos[3]{};
-	f32 rot[3]{};
-	f32 scale[3]{};
-	i8 name[30]{};
-
-	if (Begin("Inspector", &s_ShowInspectorPanel, ImGuiWindowFlags_NoCollapse))
-	{
-		BeginChild("Inspector");
-
-		InputText("Name", name, 30);
-		Spacing();
-
-		Text("Transform");
-		SliderFloat3("Position", pos, -10, 10, "%.2f");
-		SliderFloat3("Rotation", rot, -10, 10, "%.2f");
-		SliderFloat3("Scale", scale, -10, 10, "%.2f");
-		Spacing();
-		Separator();
-		Text("Box Collider");
-		SliderFloat3("Center", pos, -10, 10, "%.2f");
-
-		EndChild();
-	}
-
-	End();
-}
-
-void Sparky::Window::RenderConsolePanel() const noexcept
-{
-	using namespace ImGui;
-
-	auto logs = Log::GetLogs();
-
-	if (Begin("Console", &s_ShowConsolePanel, ImGuiWindowFlags_NoCollapse))
-	{
-		BeginChild("Console");
-
-		auto logs = Log::GetLogs();
-
-		if (!logs.empty())
-		{
-			for (const auto& log : logs)
-			{
-				Text(Log::s_LogBaseMessage); SameLine(); Text(log.c_str());
-			}
-		}
-
-		EndChild();
-	}
-
-	End();
-}
-
-void Sparky::Window::RenderContentBrowserPanel() const noexcept
-{
-	using namespace ImGui;
-
-	static std::filesystem::path currentDirectory = ASSET_PATH;
-
-	i32 w, h, x, y;
-	glfwGetWindowSize(m_Window, &w, &h);
-	glfwGetWindowPos(m_Window, &x, &y);
-
-	if (!m_Fullscreen)
-	{
-		SetNextWindowSize({ (f32)w, 375 });
-		SetNextWindowPos({ (f32)x, (f32)h - 50});
-	}
-
-	if (Begin("Content Browser", &s_ShowContentBrowserPanel,
-		ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
-	{
-		PushFont(s_FontArial);
-		BeginChild("Browser");
-
-		if (currentDirectory != std::filesystem::path(ASSET_PATH))
-		{
-			if (Button("<--"))
-				currentDirectory = currentDirectory.parent_path();
-		}
-
-		for (auto& directoryEntry : std::filesystem::directory_iterator(currentDirectory))
-		{
-			const auto& path = directoryEntry.path();
-			auto relativePath = std::filesystem::relative(path, ASSET_PATH);
-			std::string filenameString = relativePath.filename().string();
-
-			if (directoryEntry.is_directory())
-			{
-				if (Button(filenameString.c_str()))
-					currentDirectory /= path.filename();
-			}
-			else
-			{
-				if (Button(filenameString.c_str()))
-				{
-
-				}
-			}
-		}
-
-		EndChild();
-		PopFont();
-	}
-
-	End();
-}
-
-void Sparky::Window::RenderScenePanel(FrameBuffer& framebuffer) noexcept
-{
-	using namespace ImGui;
-
-	SetNextWindowSizeConstraints({ MAX_WINDOW_SIZE.x / 3, MAX_WINDOW_SIZE.y / 3 }, { MAX_WINDOW_SIZE.x, MAX_WINDOW_SIZE.y });
-	PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
-	if (Begin("Scene", &s_ShowScenePanel, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_MenuBar))
-	{
-		m_ViewportFocused = IsWindowFocused();
-
-		if (BeginMenuBar())
-		{
-			if (MenuItem("Play")) { }
-
-			if (BeginMenu("Tools"))
-			{
-				if (MenuItem("Stats")) s_ShowStatsPanel = !s_ShowStatsPanel;
-
-				static b8 fullscreen{ m_Fullscreen };
-				const i8* text = fullscreen ? "Minimize Scene" : "Maximize Scene";
-				if (MenuItem(text))
-				{
-					ToggleFullScreenSceneView();
-					fullscreen = !fullscreen;
-				}
-
-				EndMenu();
-			}
-
-			EndMenuBar();
-		}
-
-		BeginChild("GameRender");
-		ImVec2 wsize = GetWindowSize();
-
-		if (m_WindowSize != *((vec2*)&wsize))
-		{
-			framebuffer.Resize({ m_WindowSize.x, m_WindowSize.y });
-			m_WindowSize = { wsize.x, wsize.y };
-		}
-
-		auto textureId = framebuffer.GetColorAttachmentId();
-		Image(
-			(ImTextureID)textureId,
-			ImVec2{ m_WindowSize.x, m_WindowSize.y },
-			ImVec2{ 0, 1 }, ImVec2{ 1, 0 }
-		);
-
-		EndChild();
-	}
-
-	PopStyleVar();
-
-	End();
-}
-
-void Sparky::Window::RenderStatsPanel(const RendererStatistics& stats, u32 frameCount) const noexcept
-{
-	using namespace ImGui;
-
-	SetNextWindowSizeConstraints({  }, { 500, 400 });
-	if (Begin("Stats", &s_ShowStatsPanel, ImGuiWindowFlags_NoCollapse))
-	{
-		if (TreeNode("Renderer"))
-		{
-			TreePop();
-			Indent();
-			Bullet(); Text("Draw Calls: %i", stats.drawCalls);
-			Bullet(); Text("Triangle Count: %i", stats.triangleCount);
-			Bullet(); Text("Vertices: %i", stats.vertices);
-			Unindent();
-		}
-
-		for (u32 i = 0; i < 4; i++) Spacing();
-
-		if (TreeNode("Engine"))
-		{
-			TreePop();
-			Indent();
-			Bullet(); Text("FPS: %i", std::clamp(frameCount / (u32)glfwGetTime(), (u32)0, (u32)100000));
-			Bullet(); Text(m_VSYNC ? "VSYNC: Enabled" : "VSYNC: Disabled");
-			const i8* text = m_GLCoreProfile ? "OpenGL Version: %i.%i.%i core" : "OpenGL Version: %i.%i.%i";
-			Bullet(); Text(text, m_GLContextVersion.major, m_GLContextVersion.minor, m_GLContextVersion.patch);
-			Unindent();
-		}
-	}
-
-	ImGui::End();
 }
 
 void Sparky::Window::KeyPressedCallback(GLFWwindow* window, i32 key, i32 scancode, i32 action, i32 mods)

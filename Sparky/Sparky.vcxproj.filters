@@ -191,6 +191,45 @@
     <ClInclude Include="src\Core\ProjectBrowser\ProjectBrowser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Editor\Panels\ConsolePanel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Editor\Editor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Editor\EditorColors.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Editor\Panels\MainMenuBar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Editor\EditorTools.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Editor\Panels\KeyboardShortcutsPanel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Editor\Panels\AboutPanel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Editor\Panels\SettingsPanel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Editor\Panels\ScenePanel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Editor\Panels\SceneHierarchyPanel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Editor\Panels\ContentBrowserPanel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Editor\Panels\StatsPanel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Editor\Panels\InspectorPanel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Shaders\default.vert.glsl" />
@@ -261,6 +300,9 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="Assets\Textures\DarkSky.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Resources\SparkyLogo.jpg">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
