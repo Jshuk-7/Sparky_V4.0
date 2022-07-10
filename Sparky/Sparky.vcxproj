@@ -46,10 +46,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)bin\$(Configuration)-$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)bin\int\$(Configuration)-$(Platform)\</IntDir>
+    <TargetName>Sparky Game Engine</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)bin\$(Configuration)-$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)bin\int\$(Configuration)-$(Platform)\</IntDir>
+    <TargetName>Sparky Game Engine</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -123,19 +125,20 @@
     <ClCompile Include="src\Core\Window\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Core\Editor\EditorColors.h" />
-    <ClInclude Include="src\Core\Editor\EditorTools.h" />
-    <ClInclude Include="src\Core\Editor\Panels\AboutPanel.h" />
-    <ClInclude Include="src\Core\Editor\Panels\ConsolePanel.h" />
-    <ClInclude Include="src\Core\Editor\Editor.h" />
-    <ClInclude Include="src\Core\Editor\Panels\ContentBrowserPanel.h" />
-    <ClInclude Include="src\Core\Editor\Panels\InspectorPanel.h" />
-    <ClInclude Include="src\Core\Editor\Panels\KeyboardShortcutsPanel.h" />
-    <ClInclude Include="src\Core\Editor\Panels\MainMenuBar.h" />
-    <ClInclude Include="src\Core\Editor\Panels\SceneHierarchyPanel.h" />
-    <ClInclude Include="src\Core\Editor\Panels\ScenePanel.h" />
-    <ClInclude Include="src\Core\Editor\Panels\SettingsPanel.h" />
-    <ClInclude Include="src\Core\Editor\Panels\StatsPanel.h" />
+    <ClInclude Include="resources\resource.h" />
+    <ClInclude Include="src\Editor\EditorColors.h" />
+    <ClInclude Include="src\Editor\EditorTools.h" />
+    <ClInclude Include="src\Editor\Panels\AboutPanel.h" />
+    <ClInclude Include="src\Editor\Panels\ConsolePanel.h" />
+    <ClInclude Include="src\Editor\Editor.h" />
+    <ClInclude Include="src\Editor\Panels\ContentBrowserPanel.h" />
+    <ClInclude Include="src\Editor\Panels\InspectorPanel.h" />
+    <ClInclude Include="src\Editor\Panels\KeyboardShortcutsPanel.h" />
+    <ClInclude Include="src\Editor\Panels\MainMenuBar.h" />
+    <ClInclude Include="src\Editor\Panels\SceneHierarchyPanel.h" />
+    <ClInclude Include="src\Editor\Panels\ScenePanel.h" />
+    <ClInclude Include="src\Editor\Panels\SettingsPanel.h" />
+    <ClInclude Include="src\Editor\Panels\StatsPanel.h" />
     <ClInclude Include="src\Core\ProjectBrowser\ProjectBrowser.h" />
     <ClInclude Include="src\Core\Scene\Components.h" />
     <ClInclude Include="src\Core\Scene\Scene.h" />
@@ -143,6 +146,7 @@
     <ClInclude Include="src\Core\SparkySTL\SparkySTL.h" />
     <ClInclude Include="src\Core\SparkySTL\Vector.h" />
     <ClInclude Include="src\Core\Timestep.h" />
+    <ClInclude Include="src\Editor\Panels\TextEditorPanel.h" />
     <ClInclude Include="src\Graphics\Objects\FrameBuffer\FrameBuffer.h" />
     <ClInclude Include="libs\ImGui\imconfig.h" />
     <ClInclude Include="libs\ImGui\imgui.h" />
@@ -174,6 +178,7 @@
     <None Include="imgui.ini" />
     <None Include="Assets\Shaders\default.frag.glsl" />
     <None Include="Assets\Shaders\default.vert.glsl" />
+    <None Include="Sparky.aps" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="Assets\Fonts\Arial.ttf" />
@@ -181,6 +186,7 @@
     <Font Include="Assets\Fonts\SegoeUIHistoric.ttf" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="Assets\Resources\SparkyLogo.ico" />
     <Image Include="Assets\Resources\SparkyLogo.jpg" />
     <Image Include="Assets\Textures\AwesomeFace.png" />
     <Image Include="Assets\Textures\Container.jpg" />
@@ -206,6 +212,9 @@
   <ItemGroup>
     <Media Include="Assets\Audio\HowItWas.wav" />
     <Media Include="Assets\Audio\Music.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resources\Sparky.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

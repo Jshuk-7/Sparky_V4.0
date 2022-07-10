@@ -3,7 +3,7 @@
 #include <imgui.h>
 
 #include "Config/Defines.h"
-#include "Core/Editor/EditorTools.h"
+#include "Editor/EditorTools.h"
 #include "Utilities/Log/Log.h"
 
 namespace Sparky::Editor {
@@ -16,6 +16,7 @@ namespace Sparky::Editor {
 		b8& showSceneHierarchyPanel;
 		b8& showScenePanel;
 		b8& showSettingsPanel;
+		b8& showTextEditorPanel;
 	};
 
 	static void RenderMainMenuBar(MainMenuBarPanelInfo& panels)
@@ -45,11 +46,12 @@ namespace Sparky::Editor {
 
 			if (BeginMenu("Window"))
 			{
-				if (MenuItem("Scene"))            panels.showScenePanel = !panels.showScenePanel;
-				if (MenuItem("Scene Hierarchy"))  panels.showSceneHierarchyPanel = !panels.showSceneHierarchyPanel;
-				if (MenuItem("Console"))          panels.showConsolePanel = !panels.showConsolePanel;
-				if (MenuItem("Content Browser"))  panels.showContentBrowserPanel = !panels.showContentBrowserPanel;
-				if (MenuItem("Inspector"))        panels.showInspectorPanel = !panels.showInspectorPanel;
+				if (MenuItem("Console"))          panels.showConsolePanel         = !panels.showConsolePanel;
+				if (MenuItem("Content Browser"))  panels.showContentBrowserPanel  = !panels.showContentBrowserPanel;
+				if (MenuItem("Inspector"))        panels.showInspectorPanel       = !panels.showInspectorPanel;
+				if (MenuItem("Scene"))            panels.showScenePanel           = !panels.showScenePanel;
+				if (MenuItem("Scene Hierarchy"))  panels.showSceneHierarchyPanel  = !panels.showSceneHierarchyPanel;
+				if (MenuItem("Text Editor"))      panels.showTextEditorPanel      = !panels.showTextEditorPanel;
 
 				ImGui::EndMenu();
 			}

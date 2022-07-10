@@ -11,8 +11,6 @@ namespace Sparky {
 
 	#define SP_EXIT(exitCode) exit(exitCode)
 
-	#define SP_TRUE true
-	#define SP_FALSE false
 
 	/// @brief Unsigned 8-bit integer
 	typedef unsigned char u8;

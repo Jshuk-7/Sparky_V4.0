@@ -36,6 +36,7 @@ namespace Sparky {
 	{
 	public:
 		Texture(const TextureCreateInfo* createInfo);
+		//Texture() = default;
 		~Texture() noexcept;
 
 		void Bind(u32 textureIndex) const noexcept;

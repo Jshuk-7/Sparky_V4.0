@@ -7,16 +7,17 @@
 
 const Sparky::vec2 Sparky::Window::MAX_WINDOW_SIZE = vec2(1920, 1080);
 
-Sparky::b8 Sparky::Window::s_ShowKeyboardShortcutsPanel = SP_FALSE;
-Sparky::b8 Sparky::Window::s_ShowAboutPanel = SP_FALSE;
-Sparky::b8 Sparky::Window::s_ShowSettingsPanel = SP_FALSE;
-Sparky::b8 Sparky::Window::s_ShowStatsPanel = SP_FALSE;
-Sparky::b8 Sparky::Window::s_ShowContentBrowserPanel = SP_FALSE;
+Sparky::b8 Sparky::Window::s_ShowAboutPanel = false;
+Sparky::b8 Sparky::Window::s_ShowContentBrowserPanel = false;
+Sparky::b8 Sparky::Window::s_ShowKeyboardShortcutsPanel = false;
+Sparky::b8 Sparky::Window::s_ShowSettingsPanel = false;
+Sparky::b8 Sparky::Window::s_ShowStatsPanel = false;
+Sparky::b8 Sparky::Window::s_ShowTextEditorPanel = false;
 
-Sparky::b8 Sparky::Window::s_ShowSceneHierarchyPanel = SP_TRUE;
-Sparky::b8 Sparky::Window::s_ShowInspectorPanel = SP_TRUE;
-Sparky::b8 Sparky::Window::s_ShowConsolePanel = SP_TRUE;
-Sparky::b8 Sparky::Window::s_ShowScenePanel = SP_TRUE;
+Sparky::b8 Sparky::Window::s_ShowConsolePanel = true;
+Sparky::b8 Sparky::Window::s_ShowInspectorPanel = true;
+Sparky::b8 Sparky::Window::s_ShowSceneHierarchyPanel = true;
+Sparky::b8 Sparky::Window::s_ShowScenePanel = true;
 
 Sparky::stl::Array<Sparky::b8, GLFW_KEY_LAST> Sparky::Window::s_Keys;
 Sparky::stl::Array<Sparky::b8, GLFW_KEY_LAST> Sparky::Window::s_KeysChanged;
@@ -33,7 +34,7 @@ Sparky::Window::Window(const WindowCreateInfo* createInfo)
 	m_GLCoreProfile(createInfo->coreProfile),
 	m_VSYNC(createInfo->VSYNC),
 	m_GLContextVersion(createInfo->glContextVersion),
-	m_ViewportFocused(SP_TRUE),
+	m_ViewportFocused(true),
 	m_Window(SP_NULL_HANDLE) { }
 
 Sparky::Window::~Window() noexcept
@@ -46,10 +47,9 @@ Sparky::Window::~Window() noexcept
 	glfwTerminate();
 }
 
-void Sparky::Window::SetIcon() const noexcept
+void Sparky::Window::SetIcon(const i8* filename) const noexcept
 {
 	i32 width, height, nrChannels;
-	const i8* filename{ "Assets/Resources/SparkyLogo.jpg" };
 	u8* textureData = stbi_load(filename, &width, &height, &nrChannels, STBI_rgb_alpha);
 
 	GLFWimage image{};
@@ -85,7 +85,7 @@ Sparky::b8 Sparky::Window::Init() const
 	if (!m_Window)
 	{
 		throw SparkyException(__LINE__, __FILE__);
-		return SP_FALSE;
+		return false;
 	}
 
 	glfwMakeContextCurrent(m_Window);
@@ -99,7 +99,7 @@ Sparky::b8 Sparky::Window::Init() const
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		throw SparkyException(__LINE__, __FILE__);
-		return SP_FALSE;
+		return false;
 	}
 
 	if (m_DebugMode)
@@ -109,11 +109,11 @@ Sparky::b8 Sparky::Window::Init() const
 		glDebugMessageCallback(DebugCallback, SP_NULL_HANDLE);
 
 		glDebugMessageControl(
-			GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, SP_NULL, SP_NULL, SP_FALSE
+			GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, SP_NULL, SP_NULL, false
 		);
 
 		glDebugMessageControl(
-			GL_DEBUG_SOURCE_API, GL_DEBUG_TYPE_ERROR, GL_DONT_CARE, SP_NULL, SP_NULL, SP_TRUE
+			GL_DEBUG_SOURCE_API, GL_DEBUG_TYPE_ERROR, GL_DONT_CARE, SP_NULL, SP_NULL, true
 		);
 		
 		SP_TRACE(std::format("Graphics Card: {0}", (const i8*)glGetString(GL_RENDERER)).c_str());
@@ -139,14 +139,28 @@ Sparky::b8 Sparky::Window::Init() const
 	io.Fonts->Build();
 	io.BackendFlags |= ImGuiBackendFlags_PlatformHasViewports | ImGuiBackendFlags_RendererHasViewports;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard | ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_ViewportsEnable;
-	io.WantCaptureKeyboard = SP_TRUE;
-	io.WantCaptureMouse = SP_TRUE;
+	io.WantCaptureKeyboard = true;
+	io.WantCaptureMouse = true;
 	ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
 	ImGui_ImplOpenGL3_Init(openGLVersion.c_str());
 
 	Editor::StyleColorsSparkyGray();
 
 	return QueryExtensionSupport();
+}
+
+void Sparky::Window::RenderViewportPanels(FrameBuffer& framebuffer, u32 frameCount, const RendererStatistics& stats) noexcept
+{
+	if (s_ShowAboutPanel)              Editor::RenderAboutPanel(s_ShowAboutPanel);
+	if (s_ShowConsolePanel)            Editor::RenderConsolePanel(s_ShowConsolePanel);
+	if (s_ShowContentBrowserPanel)     Editor::RenderContentBrowserPanel(s_ShowContentBrowserPanel, m_Fullscreen, s_FontArial, m_Window);
+	if (s_ShowInspectorPanel)          Editor::RenderInspectorPanel(s_ShowInspectorPanel);
+	if (s_ShowKeyboardShortcutsPanel)  Editor::RenderKeyboardShortcutsPanel(s_ShowKeyboardShortcutsPanel);
+	if (s_ShowSceneHierarchyPanel)     Editor::RenderSceneHierarchyPanel(s_ShowSceneHierarchyPanel);
+	if (s_ShowScenePanel)              Editor::RenderScenePanel(m_SceneViewInfo, framebuffer);
+	if (s_ShowSettingsPanel)           Editor::RenderSettingsPanel(s_ShowSettingsPanel, m_VSYNC, m_DebugMode);
+	if (s_ShowStatsPanel)              Editor::RenderStatsPanel(s_ShowStatsPanel, m_VSYNC, m_GLCoreProfile, stats, frameCount, m_GLContextVersion);
+	if (s_ShowTextEditorPanel)         Editor::RenderTextEditorPanel(s_ShowTextEditorPanel);
 }
 
 void Sparky::Window::CreateEditorGUIFrame(FrameBuffer& framebuffer, u32 frameCount, const RendererStatistics& stats) noexcept
@@ -166,15 +180,7 @@ void Sparky::Window::CreateEditorGUIFrame(FrameBuffer& framebuffer, u32 frameCou
 
 	Editor::RenderMainMenuBar(m_MainMenuInfo);
 
-	if (s_ShowKeyboardShortcutsPanel)  Editor::RenderKeyboardShortcutsPanel(s_ShowKeyboardShortcutsPanel);
-	if (s_ShowAboutPanel)              Editor::RenderAboutPanel(s_ShowAboutPanel);
-	if (s_ShowSettingsPanel)           Editor::RenderSettingsPanel(s_ShowSettingsPanel, m_VSYNC, m_DebugMode);
-	if (s_ShowSceneHierarchyPanel)     Editor::RenderSceneHierarchyPanel(s_ShowSceneHierarchyPanel);
-	if (s_ShowInspectorPanel)          Editor::RenderInspectorPanel(s_ShowInspectorPanel);
-	if (s_ShowConsolePanel)            Editor::RenderConsolePanel(s_ShowConsolePanel);
-	if (s_ShowContentBrowserPanel)     Editor::RenderContentBrowserPanel(s_ShowContentBrowserPanel, m_Fullscreen, s_FontArial, m_Window);
-	if (s_ShowScenePanel)              Editor::RenderScenePanel(m_SceneViewInfo, m_ViewportFocused, m_Fullscreen, framebuffer, MAX_WINDOW_SIZE, m_WindowSize);
-	if (s_ShowStatsPanel)              Editor::RenderStatsPanel(s_ShowStatsPanel, m_VSYNC, m_GLCoreProfile, stats, frameCount, m_GLContextVersion);
+	RenderViewportPanels(framebuffer, frameCount, stats);
 
 	EndFrame();
 	ImGui::Render();
@@ -204,12 +210,14 @@ void TextCentered(const std::string& text)
 	ImGui::Text(text.c_str());
 }
 
-void Sparky::Window::ToggleFullScreen() const noexcept
+void Sparky::Window::ToggleFullScreen() noexcept
 {
 	static b8 fullscreen{ m_Fullscreen };
 	fullscreen = !fullscreen;
 
-	fullscreen ? glfwMaximizeWindow(m_Window) : glfwRestoreWindow(m_Window);
+	m_Fullscreen = fullscreen;
+
+	m_Fullscreen ? glfwMaximizeWindow(m_Window) : glfwRestoreWindow(m_Window);
 }
 
 void Sparky::Window::ProcessInput(mat4& model, f32 speed, f32& mixValue, Shader& shader) noexcept
@@ -270,7 +278,7 @@ Sparky::b8 Sparky::Window::QueryExtensionSupport() const
 		if (extensionCount == SP_NULL)
 		{
 			throw SparkyException(__LINE__, __FILE__);
-			return SP_FALSE;
+			return false;
 		}
 
 		SP_TRACE(std::format("{0} extensions supported by implementation", extensionCount));
@@ -279,8 +287,9 @@ Sparky::b8 Sparky::Window::QueryExtensionSupport() const
 			SP_TRACE(std::format("\t\t{0}", (const i8*)glGetStringi(GL_EXTENSIONS, i)));
 	}
 
-	return SP_TRUE;
+	return true;
 }
+
 
 void Sparky::Window::KeyPressedCallback(GLFWwindow* window, i32 key, i32 scancode, i32 action, i32 mods)
 {

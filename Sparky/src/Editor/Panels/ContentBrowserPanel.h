@@ -57,8 +57,8 @@ namespace Sparky::Editor {
 					{
 						if (relativePath.extension() == ".glsl")
 						{
-							showContentBrowserPanel = SP_FALSE;
-							//s_ShowTextEditorPanel = SP_TRUE;
+							showContentBrowserPanel = false;
+							//s_ShowTextEditorPanel = true;
 							//ShowTextEditor(relativePath);
 						}
 					}

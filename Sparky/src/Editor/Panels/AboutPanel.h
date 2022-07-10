@@ -2,7 +2,7 @@
 
 #include <imgui.h>
 
-#include "Core/Editor/EditorTools.h"
+#include "Editor/EditorTools.h"
 #include "Config/Defines.h"
 
 namespace Sparky::Editor {

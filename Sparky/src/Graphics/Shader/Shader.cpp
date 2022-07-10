@@ -9,7 +9,7 @@
 Sparky::Shader::Shader(const ShaderProgramCreateInfo* createInfo) noexcept
 	: m_CreateInfo(*createInfo)
 {
-	if (CreateProgram() == SP_TRUE)
+	if (CreateProgram() == true)
 	{
 		Enable();
 		SP_TRACE("Shader compiled and linked successfully!");
@@ -88,7 +88,7 @@ void Sparky::Shader::ReCompile()
 {
 	Destroy();
 
-	if (CreateProgram() == SP_TRUE)
+	if (CreateProgram() == true)
 	{
 		Enable();
 		SP_TRACE("Shader hot reload successful!");
@@ -106,8 +106,8 @@ Sparky::b8 Sparky::Shader::CreateProgram()
 	int  success{};
 	char infoLog[512]{};
 
-	if (!CompileShader(vertexShader, m_CreateInfo.pVertexShaderFilepath, ShaderType::Vertex)) return SP_FALSE;
-	if (!CompileShader(fragmentShader, m_CreateInfo.pFragmentShaderFilepath, ShaderType::Fragment)) return SP_FALSE;
+	if (!CompileShader(vertexShader, m_CreateInfo.pVertexShaderFilepath, ShaderType::Vertex)) return false;
+	if (!CompileShader(fragmentShader, m_CreateInfo.pFragmentShaderFilepath, ShaderType::Fragment)) return false;
 
 	m_Id = glCreateProgram();
 
@@ -124,10 +124,10 @@ Sparky::b8 Sparky::Shader::CreateProgram()
 		glGetProgramInfoLog(m_Id, 512, SP_NULL, infoLog);
 		SP_FATAL(infoLog);
 		throw SparkyException(__LINE__, __FILE__);
-		return SP_FALSE;
+		return false;
 	}
 
-	return SP_TRUE;
+	return true;
 }
 
 Sparky::b8 Sparky::Shader::CompileShader(u32& shader, const std::string& filename, ShaderType type) const noexcept
@@ -149,8 +149,8 @@ Sparky::b8 Sparky::Shader::CompileShader(u32& shader, const std::string& filenam
 	else
 	{
 		glDisable(GL_DEBUG_OUTPUT);
-		SP_FATAL("Failed to open " + (std::string)(shaderType == 0 ? "vertex" : "fragment") + " shader file from: /" + filename);
-		return SP_FALSE;
+		SP_FATAL("Failed to open " + (std::string)(shaderType == 0 ? "Vertex" : "Fragment") + " Shader file from: /" + filename);
+		return false;
 	}
 
 	file.close();
@@ -169,10 +169,11 @@ Sparky::b8 Sparky::Shader::CompileShader(u32& shader, const std::string& filenam
 	{
 		glDisable(GL_DEBUG_OUTPUT);
 		glGetShaderInfoLog(shader, 512, SP_NULL, infoLog);
+		SP_FATAL("Failed to compile " + (std::string)(shaderType == 0 ? "Vertex" : "Fragment") + " Shader file from: /" + filename);
 		SP_FATAL(infoLog);
-		return SP_FALSE;
+		return false;
 	}
-	else return SP_TRUE;
+	else return true;
 }
 
 Sparky::i32 Sparky::Shader::GetUniformLocation(const std::string& uniform) const noexcept

@@ -2,8 +2,8 @@
 
 #include <imgui.h>
 
-#include "Core/Editor/EditorTools.h"
-#include "Core/Editor/EditorColors.h"
+#include "Editor/EditorTools.h"
+#include "Editor/EditorColors.h"
 #include "Config/Defines.h"
 
 namespace Sparky::Editor {

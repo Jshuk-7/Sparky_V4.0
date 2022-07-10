@@ -7,11 +7,11 @@ Sparky::Application::Application()
 	WindowCreateInfo windowInfo{};
 	windowInfo.pApplicationName = "Sparky Editor";
 	windowInfo.glContextVersion = Version(4, 6, 0);
-	windowInfo.fullscreen = SP_FALSE;
-	windowInfo.coreProfile = SP_TRUE;
-	windowInfo.listGPUExtensions = SP_FALSE;
-	windowInfo.debugMode = SP_TRUE;
-	windowInfo.VSYNC = SP_TRUE;
+	windowInfo.fullscreen = false;
+	windowInfo.coreProfile = true;
+	windowInfo.listGPUExtensions = false;
+	windowInfo.debugMode = true;
+	windowInfo.VSYNC = true;
 	windowInfo.windowSize = windowInfo.fullscreen ? Window::MAX_WINDOW_SIZE : vec2(1280, 720);
 
 	m_Window = Window::CreateInstance(&windowInfo);
@@ -21,7 +21,7 @@ Sparky::Application::Application()
 		SP_FATAL("Failed to Initialize Window!");
 		throw SparkyException(__LINE__, __FILE__);
 	}
-	m_Window->SetIcon();
+	m_Window->SetIcon("Assets/Resources/SparkyLogo.jpg");
 
 	m_ActiveScene = new Scene();
 }
@@ -37,7 +37,9 @@ Sparky::Application::~Application()
 Sparky::Application* Sparky::Application::MakeInstance()
 {
 	static Application* app = new Application();
-	PlaySound(L"Assets/Audio/Music", SP_NULL, SND_ASYNC);
+
+	/// Must use a wide/multibyte string WINDOWS ONLY
+	//PlaySound(L"Assets/Audio/Music", SP_NULL, SND_ASYNC);
 
 	if (app != SP_NULL_HANDLE)
 		return app;
@@ -85,14 +87,14 @@ void Sparky::Application::Run() const noexcept
 	texInfo.pFilename = "Assets/Resources/SparkyLogo.jpg";
 	texInfo.format = TextureFormatType::RGBA;
 	texInfo.pixelType = TexturePixelType::Smooth;
-	texInfo.flipY = SP_TRUE;
+	texInfo.flipY = true;
 
 	TextureCreateInfo texInfo2{};
 	texInfo2.pFilename = "Assets/Textures/OpenGL.png";
 	//texInfo2.pFilename = "Assets/Textures/Shawn.png";
 	texInfo2.format = TextureFormatType::RGBA;
 	texInfo2.pixelType = TexturePixelType::Smooth;
-	texInfo2.flipY = SP_TRUE;
+	texInfo2.flipY = true;
 
 	Texture texture(&texInfo);
 	Texture texture2(&texInfo2);
@@ -119,20 +121,20 @@ void Sparky::Application::Run() const noexcept
 	VertexArray va;
 	va.LinkVBO(VertexBuffer::Create(&vbInfo));
 
-	va.PushAttrib(0, 3, SP_FALSE, SP_NULL);
-	va.PushAttrib(1, 3, SP_FALSE, sizeof(vec3));
-	va.PushAttrib(2, 2, SP_FALSE, sizeof(vec3) * 2);
+	va.PushAttrib(0, 3, false, SP_NULL);
+	va.PushAttrib(1, 3, false, sizeof(vec3));
+	va.PushAttrib(2, 2, false, sizeof(vec3) * 2);
 
 	va.LinkIBO(IndexBuffer::Create(&ibInfo));
 	
-	RendererStatistics stats{};
-	stats.drawCalls = 1;
-	stats.triangleCount = va.GetLinkedVBOs()[0]->GetVertexCount() / SP_VERTICES_PER_TRIANGLE;
-	stats.vertices = va.GetLinkedVBOs()[0]->GetVertexCount();
+	RendererStatistics renderStats{};
+	renderStats.drawCalls = 1;
+	renderStats.triangleCount = va.GetLinkedVBOs()[0]->GetVertexCount() / SP_VERTICES_PER_TRIANGLE;
+	renderStats.vertices = va.GetLinkedVBOs()[0]->GetVertexCount();
 
 	Renderer renderer;
-	renderer.SetClearColor({ .1, .1, .11 });
-	renderer.SubmitStats(stats);
+	renderer.SetClearColor({ 0.1f, 0.1f, 0.11f });
+	renderer.SubmitStats(&renderStats);
 	
 	f32 moveSpeed{ 0.05f };
 	f32 mixValue{ 0.5f };
@@ -144,16 +146,16 @@ void Sparky::Application::Run() const noexcept
 		renderer.RenderClear();
 
 		shader.SetUniform("u_Model", model);
+		shader.SetUniform("u_MixValue", mixValue);
 		m_Window->ProcessInput(model, moveSpeed, mixValue, shader);	
 
 		texture.Bind(0);
 		texture2.Bind(1);
-		shader.SetUniform("u_MixValue", mixValue);
 		va.Bind();
 
 		renderer.Render(PrimitiveType::Triangles, va.GetLinkedVBOs()[0]->GetVertexCount(), va.GetIBODataType());
 
-		renderer.Update();
+		renderer.SwapFrameBuffers();
 		framebuffer.Unbind();
 
 		m_Window->CreateEditorGUIFrame(framebuffer, frameCount, renderer.GetStats());

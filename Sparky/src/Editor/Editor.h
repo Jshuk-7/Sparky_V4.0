@@ -10,5 +10,6 @@
 #include "Panels/ScenePanel.h"
 #include "Panels/SettingsPanel.h"
 #include "Panels/StatsPanel.h"
+#include "Panels/TextEditorPanel.h"
 
 #include "EditorColors.h"

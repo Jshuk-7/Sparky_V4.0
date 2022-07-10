@@ -1,13 +1,12 @@
 #pragma once
 
-#include <deque>
-#include <vector>
-
 #define GLFW_INCLUDE_OPENGL
 #include <GLFW/glfw3.h>
 
 #include "Config/Defines.h"
+#include "Core/SparkySTL/SparkySTL.h"
 #include "Math/SparkyMath.h"
+#include "Graphics/Objects/FrameBuffer/FrameBuffer.h"
 #include "Graphics/Objects/VertexArray/VertexArray.h"
 #include "Graphics/Objects/VertexBuffer/VertexBuffer.h"
 #include "Graphics/Objects/IndexBuffer/IndexBuffer.h"
@@ -20,21 +19,18 @@ namespace Sparky {
 		Points    = GL_POINTS
 	};
 
-	struct RendererDataCreateInfo {
-		u32& vertexArrayId;
-		u32& vertexBufferId;
-		u32& indexBufferId;
-		u32 indexCount;
-		u32 attributeCount;
-		Vertex* pVertices;
-		u8* pIndices;
-		PrimitiveType primitiveType;
-	};
-
 	struct RendererStatistics {
 		u32 drawCalls;
 		u32 triangleCount;
 		u32 vertices;
+	};
+
+	struct RendererDataCreateInfo {
+		FrameBuffer framebuffer;
+		Shader shader;
+		VertexArray vao;
+		vec3 clearColor;
+		PrimitiveType primitiveType;
 	};
 
 	class Renderer
@@ -46,24 +42,18 @@ namespace Sparky {
 		void Flush() noexcept;
 		
 		void SetClearColor(const vec3& color) const noexcept;
-
-		void Update() const noexcept;
 		void RenderClear() const noexcept;
 
 		void Render(PrimitiveType primitive, u32 totalVertices, IndexBufferDataType iboDataType) noexcept;
-
-		void SubmitStats(const RendererStatistics& stats) noexcept;
-		const RendererStatistics& GetStats() const noexcept { return m_RendererStats; }
-
-	public:
-
-
-	private:
 		void SwapFrameBuffers() const noexcept;
 
+		void SubmitStats(const RendererStatistics* stats) noexcept;
+		const RendererStatistics& GetStats() const noexcept { return m_RendererStats; }
+
 	private:
-		std::deque<const RendererDataCreateInfo*> m_RenderQueue;
+		stl::Vector<const RendererDataCreateInfo*> m_RenderQueue;
 		RendererStatistics m_RendererStats;
+		FrameBuffer m_TargetFrameBuffer;
 
 	};
 }

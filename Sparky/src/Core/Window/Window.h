@@ -6,7 +6,7 @@
 #include <imgui.h>
 
 #include "Config/Defines.h"
-#include "Core/Editor/Editor.h"
+#include "Editor/Editor.h"
 #include "Math/SparkyMath.h"
 #include "Core/SparkySTL/SparkySTL.h"
 #include "Graphics/Shader/Shader.h"
@@ -37,7 +37,7 @@ namespace Sparky {
 
 		void ProcessInput(mat4& model, f32 speed, f32& mixValue, Shader& shader) noexcept;
 		b8 Closed() const noexcept;
-		inline void Close() const noexcept { glfwSetWindowShouldClose(m_Window, SP_TRUE); }
+		inline void Close() const noexcept { glfwSetWindowShouldClose(m_Window, true); }
 
 		inline static b8 KeyHeld(i32 key) noexcept { return s_Keys[key]; }
 
@@ -56,7 +56,7 @@ namespace Sparky {
 
 		~Window() noexcept;
 
-		void SetIcon() const noexcept;
+		void SetIcon(const i8* filename) const noexcept;
 
 	private:
 		Window(const WindowCreateInfo* createInfo);
@@ -65,7 +65,9 @@ namespace Sparky {
 
 		b8 QueryExtensionSupport() const;
 
-		void ToggleFullScreen() const noexcept;
+		void RenderViewportPanels(FrameBuffer& framebuffer, u32 frameCount, const RendererStatistics& stats) noexcept;
+
+		void ToggleFullScreen() noexcept;
 
 		static void KeyPressedCallback(GLFWwindow* window, i32 key, i32 scancode, i32 action, i32 mods);
 		static void FrameBufferResizeCallback(GLFWwindow* window, i32 width, i32 height);
@@ -102,17 +104,19 @@ namespace Sparky {
 		static b8 s_ShowContentBrowserPanel;
 		static b8 s_ShowScenePanel;
 		static b8 s_ShowStatsPanel;
+		static b8 s_ShowTextEditorPanel;
 
 		Editor::MainMenuBarPanelInfo m_MainMenuInfo{
 			s_ShowAboutPanel, s_ShowConsolePanel, s_ShowContentBrowserPanel,
 			s_ShowInspectorPanel, s_ShowKeyboardShortcutsPanel, s_ShowSceneHierarchyPanel,
-			s_ShowScenePanel, s_ShowSettingsPanel
+			s_ShowScenePanel, s_ShowSettingsPanel, s_ShowTextEditorPanel
 		};
 
 		Editor::SceneFullscreenViewInfo m_SceneViewInfo{
 			s_ShowAboutPanel, s_ShowConsolePanel, s_ShowContentBrowserPanel,
 			s_ShowInspectorPanel, s_ShowKeyboardShortcutsPanel, s_ShowSceneHierarchyPanel,
-			s_ShowScenePanel, s_ShowSettingsPanel, s_ShowStatsPanel
+			s_ShowScenePanel, s_ShowSettingsPanel, s_ShowStatsPanel, s_ShowTextEditorPanel,
+			m_ViewportFocused, m_Fullscreen, MAX_WINDOW_SIZE, m_WindowSize
 		};
 
 		static ImFont* s_FontArial;

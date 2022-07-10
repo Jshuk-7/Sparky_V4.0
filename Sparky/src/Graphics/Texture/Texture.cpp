@@ -11,7 +11,7 @@ Sparky::Texture::Texture(const TextureCreateInfo* createInfo)
 	i32 pixelType = static_cast<i32>(m_CreateInfo.pixelType);
 
 	if (!textureData) {
-		SP_FATAL("Failed to load texture from: /" + (std::string)m_CreateInfo.pFilename);
+		SP_FATAL("Failed to load Texture from: /" + (std::string)m_CreateInfo.pFilename);
 		//throw SparkyException(__LINE__, __FILE__);
 	}
 	else {
@@ -28,6 +28,8 @@ Sparky::Texture::Texture(const TextureCreateInfo* createInfo)
 		glTextureSubImage2D(m_Id, 0, 0, 0, width, height, format, GL_UNSIGNED_BYTE, textureData);
 
 		stbi_image_free(textureData);
+
+		SP_TRACE(std::format("New Texture created: Id: {0}, /{1}", m_Id, m_CreateInfo.pFilename));
 	}
 }
 

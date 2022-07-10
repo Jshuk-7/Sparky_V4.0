@@ -5,7 +5,7 @@
 #include <imgui_impl_opengl3.h>
 
 #include "ProjectBrowser.h"
-#include "Core/Editor/EditorTools.h"
+#include "Editor/EditorTools.h"
 
 Sparky::ProjectBrowser::ProjectBrowser(vec2 windowSize)
 	: m_WindowSize(windowSize)
@@ -15,7 +15,7 @@ Sparky::ProjectBrowser::ProjectBrowser(vec2 windowSize)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_RESIZABLE, SP_FALSE);
+	glfwWindowHint(GLFW_RESIZABLE, false);
 
 	const i8* title{ "Sparky Game Engine v0.3.0 - Development Build (Project Browser)" };
 	m_Window = glfwCreateWindow(m_WindowSize.x, m_WindowSize.y, title, SP_NULL_HANDLE, SP_NULL_HANDLE);

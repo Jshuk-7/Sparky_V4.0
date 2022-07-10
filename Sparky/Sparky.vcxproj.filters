@@ -191,43 +191,49 @@
     <ClInclude Include="src\Core\ProjectBrowser\ProjectBrowser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Editor\Panels\ConsolePanel.h">
+    <ClInclude Include="src\Editor\Panels\ConsolePanel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Editor\Editor.h">
+    <ClInclude Include="src\Editor\Editor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Editor\EditorColors.h">
+    <ClInclude Include="src\Editor\EditorColors.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Editor\Panels\MainMenuBar.h">
+    <ClInclude Include="src\Editor\Panels\MainMenuBar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Editor\EditorTools.h">
+    <ClInclude Include="src\Editor\EditorTools.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Editor\Panels\KeyboardShortcutsPanel.h">
+    <ClInclude Include="src\Editor\Panels\KeyboardShortcutsPanel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Editor\Panels\AboutPanel.h">
+    <ClInclude Include="src\Editor\Panels\AboutPanel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Editor\Panels\SettingsPanel.h">
+    <ClInclude Include="src\Editor\Panels\SettingsPanel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Editor\Panels\ScenePanel.h">
+    <ClInclude Include="src\Editor\Panels\ScenePanel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Editor\Panels\SceneHierarchyPanel.h">
+    <ClInclude Include="src\Editor\Panels\SceneHierarchyPanel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Editor\Panels\ContentBrowserPanel.h">
+    <ClInclude Include="src\Editor\Panels\ContentBrowserPanel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Editor\Panels\StatsPanel.h">
+    <ClInclude Include="src\Editor\Panels\StatsPanel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Editor\Panels\InspectorPanel.h">
+    <ClInclude Include="src\Editor\Panels\InspectorPanel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resources\resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Editor\Panels\TextEditorPanel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -235,6 +241,7 @@
     <None Include="Assets\Shaders\default.vert.glsl" />
     <None Include="Assets\Shaders\default.frag.glsl" />
     <None Include="imgui.ini" />
+    <None Include="Sparky.aps" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="Assets\Fonts\Arial.ttf" />
@@ -305,6 +312,9 @@
     <Image Include="Assets\Resources\SparkyLogo.jpg">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="Assets\Resources\SparkyLogo.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Media Include="Assets\Audio\Music.wav">
@@ -313,5 +323,10 @@
     <Media Include="Assets\Audio\HowItWas.wav">
       <Filter>Resource Files</Filter>
     </Media>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resources\Sparky.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>
